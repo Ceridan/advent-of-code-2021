@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class Utils {
+class Utils {
     public static List<Integer> ReadInputAsIntegerArray(String filename) throws FileNotFoundException {
         File input = new File("src/main/resources/aoc2021/" + filename);
         Scanner scanner = new Scanner(input);

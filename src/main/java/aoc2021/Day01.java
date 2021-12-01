@@ -26,14 +26,9 @@ public class Day01 {
 
     static int Part2(List<Integer> data) {
         int increases = 0;
-        int window1 = 0;
-        int window2 = data.get(0) + data.get(1) + data.get(2);
 
         for (int i = 3; i < data.size(); i++) {
-            window1 = window2;
-            window2 = window2 - data.get(i - 3) + data.get(i);
-
-            if (window2 > window1) {
+            if (data.get(i) > data.get(i - 3)) {
                 increases++;
             }
         }
