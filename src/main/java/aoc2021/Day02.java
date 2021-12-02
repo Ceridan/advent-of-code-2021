@@ -56,7 +56,7 @@ public class Day02 {
         return horizontal * depth;
     }
 
-    static List<Command> BuildCommands(List<String> input) {
+    private static List<Command> BuildCommands(List<String> input) {
         List<Command> commands = new ArrayList<>(input.size());
 
         for (String line : input) {
@@ -69,7 +69,7 @@ public class Day02 {
         return commands;
     }
 
-    static class Command {
+    private static class Command {
         private final String command;
         private final int value;
 
