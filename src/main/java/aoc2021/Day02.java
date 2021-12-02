@@ -6,14 +6,14 @@ import java.util.List;
 
 public class Day02 {
     public static void main(String[] args) throws FileNotFoundException {
-        List<String> data = Utils.ReadInputAsStringArray("day02.txt");
+        List<String> data = Utils.readInputAsStringArray("day02.txt");
 
-        System.out.printf("Day 02, part 1: %d\n", Part1(data));
-        System.out.printf("Day 02, part 2: %d\n", Part2(data));
+        System.out.printf("Day 02, part 1: %d\n", part1(data));
+        System.out.printf("Day 02, part 2: %d\n", part2(data));
     }
 
-    static long Part1(List<String> data) {
-        List<Command> commands = BuildCommands(data);
+    static long part1(List<String> data) {
+        List<Command> commands = buildCommands(data);
         long horizontal = 0;
         long depth = 0;
 
@@ -33,8 +33,8 @@ public class Day02 {
         return horizontal * depth;
     }
 
-    static long Part2(List<String> data) {
-        List<Command> commands = BuildCommands(data);
+    static long part2(List<String> data) {
+        List<Command> commands = buildCommands(data);
         long horizontal = 0;
         long depth = 0;
         long aim = 0;
@@ -56,7 +56,7 @@ public class Day02 {
         return horizontal * depth;
     }
 
-    private static List<Command> BuildCommands(List<String> input) {
+    private static List<Command> buildCommands(List<String> input) {
         List<Command> commands = new ArrayList<>(input.size());
 
         for (String line : input) {

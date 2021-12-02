@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class Day02Tests {
 
     @Test
-    void Part1_Example() {
+    void part1_example() {
         List<String> data = Arrays.asList(
             "forward 5",
             "down 5",
@@ -19,13 +19,13 @@ class Day02Tests {
             "down 8",
             "forward 2");
 
-        long result = Day02.Part1(data);
+        long result = Day02.part1(data);
 
         assertEquals(150, result);
     }
 
     @Test
-    void Part2_Example() {
+    void part2_example() {
         List<String> data = Arrays.asList(
             "forward 5",
             "down 5",
@@ -34,7 +34,7 @@ class Day02Tests {
             "down 8",
             "forward 2");
 
-        long result = Day02.Part2(data);
+        long result = Day02.part2(data);
 
         assertEquals(900, result);
     }
