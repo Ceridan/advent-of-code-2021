@@ -13,13 +13,13 @@ public class Day03 {
     }
 
     static int part1(List<String> data) {
-        List<Integer> numbers = GetNumbers(data);
+        List<Integer> numbers = getNumbers(data);
         int size = data.get(0).length();
         char[] gamma = new char[size];
         char[] epsilon = new char[size];
 
         for (int i = 0; i < size; i++) {
-            BitSets bs = GetBitSets(numbers, i, size);
+            BitSets bs = getBitSets(numbers, i, size);
             if (bs.getOnes().size() > bs.getZeroes().size()) {
                 gamma[i] = '1';
                 epsilon[i] = '0';
@@ -33,14 +33,14 @@ public class Day03 {
     }
 
     static int part2(List<String> data) {
-        List<Integer> generatorNumbers = GetNumbers(data);
-        List<Integer> co2Numbers = GetNumbers(data);
+        List<Integer> generatorNumbers = getNumbers(data);
+        List<Integer> co2Numbers = getNumbers(data);
         int size = data.get(0).length();
         int generator = 0;
         int co2 = 0;
 
         for (int i = 0; i < size; i++) {
-            BitSets bs = GetBitSets(generatorNumbers, i, size);
+            BitSets bs = getBitSets(generatorNumbers, i, size);
             if (bs.getOnes().size() >= bs.getZeroes().size()) {
                 generatorNumbers = bs.ones;
             } else {
@@ -54,7 +54,7 @@ public class Day03 {
         }
 
         for (int i = 0; i < size; i++) {
-            BitSets bs = GetBitSets(co2Numbers, i, size);
+            BitSets bs = getBitSets(co2Numbers, i, size);
             if (bs.getOnes().size() < bs.getZeroes().size()) {
                 co2Numbers = bs.ones;
             } else {
@@ -70,7 +70,7 @@ public class Day03 {
         return generator * co2;
     }
 
-    private static BitSets GetBitSets(List<Integer> numbers, int position, int size) {
+    private static BitSets getBitSets(List<Integer> numbers, int position, int size) {
         int comparer = (int) Math.pow(2, size - position - 1);
         BitSets bs = new BitSets();
 
@@ -85,7 +85,7 @@ public class Day03 {
         return bs;
     }
 
-    private static List<Integer> GetNumbers(List<String> data) {
+    private static List<Integer> getNumbers(List<String> data) {
         List<Integer> numbers = new ArrayList<>(data.size());
 
         for (String binary : data) {
