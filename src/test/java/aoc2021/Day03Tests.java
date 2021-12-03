@@ -11,7 +11,7 @@ class Day03Tests {
 
     @Test
     void part1_example() {
-        List<String> data = Arrays.asList(
+        List<String> data = List.of(
             "00100",
             "11110",
             "10110",
@@ -32,7 +32,7 @@ class Day03Tests {
 
     @Test
     void part2_example() {
-        List<String> data = Arrays.asList(
+        List<String> data = List.of(
             "00100",
             "11110",
             "10110",

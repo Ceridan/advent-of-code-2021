@@ -11,7 +11,7 @@ class Day02Tests {
 
     @Test
     void part1_example() {
-        List<String> data = Arrays.asList(
+        List<String> data = List.of(
             "forward 5",
             "down 5",
             "forward 8",
@@ -26,7 +26,7 @@ class Day02Tests {
 
     @Test
     void part2_example() {
-        List<String> data = Arrays.asList(
+        List<String> data = List.of(
             "forward 5",
             "down 5",
             "forward 8",

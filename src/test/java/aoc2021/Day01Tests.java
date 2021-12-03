@@ -11,7 +11,7 @@ class Day01Tests {
 
     @Test
     void part1_example() {
-        List<Integer> data = Arrays.asList(199, 200, 208, 210, 200, 207, 240, 269, 260, 263);
+        List<Integer> data = List.of(199, 200, 208, 210, 200, 207, 240, 269, 260, 263);
 
         int result = Day01.part1(data);
 
@@ -20,7 +20,7 @@ class Day01Tests {
 
     @Test
     void part2_example() {
-        List<Integer> data = Arrays.asList(199, 200, 208, 210, 200, 207, 240, 269, 260, 263);
+        List<Integer> data = List.of(199, 200, 208, 210, 200, 207, 240, 269, 260, 263);
 
         int result = Day01.part2(data);
 
