@@ -10,7 +10,7 @@ class Utils {
     private final static String BASE_PATH = "src/main/resources/aoc2021/";
 
     public static List<Integer> readInputAsIntegerArray(String filename) throws FileNotFoundException {
-        File input = new File(BASE_PATH + filename);
+        File input = getInputFile(filename);
         Scanner scanner = new Scanner(input);
 
         List<Integer> data = new ArrayList<>();
@@ -23,7 +23,7 @@ class Utils {
     }
 
     public static List<String> readInputAsStringArray(String filename) throws FileNotFoundException {
-        File input = new File(BASE_PATH + filename);
+        File input = getInputFile(filename);
         Scanner scanner = new Scanner(input);
 
         List<String> data = new ArrayList<>();
@@ -33,5 +33,9 @@ class Utils {
         }
 
         return data;
+    }
+
+    public static File getInputFile(String filename) {
+        return new File(BASE_PATH + filename);
     }
 }
