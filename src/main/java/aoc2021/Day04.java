@@ -91,7 +91,7 @@ public class Day04 {
         private final HashMap<Integer, Position> boardMap = new HashMap<>(25);
         private final HashMap<Integer, Integer> rows = new HashMap<>(5);
         private final HashMap<Integer, Integer> cols = new HashMap<>(5);
-        private int totalSum = 0;
+        private int unmarkedSum = 0;
 
         public Board(int boardId, Integer[][] board) {
             id = boardId;
@@ -104,18 +104,18 @@ public class Day04 {
                 return -1;
             }
 
-            totalSum -= number;
+            unmarkedSum -= number;
 
             int rowCount = rows.get(pos.getRow()) + 1;
             rows.put(pos.getRow(), rowCount);
             if (rowCount == 5) {
-                return totalSum;
+                return unmarkedSum;
             }
 
             int colCount = cols.get(pos.getCol()) + 1;
             cols.put(pos.getCol(), colCount);
             if (colCount == 5) {
-                return totalSum;
+                return unmarkedSum;
             }
 
             return -1;
@@ -132,7 +132,7 @@ public class Day04 {
                 for (int j = 0; j < 5; j++) {
                     int number = board[i][j];
                     boardMap.put(number, new Position(i, j));
-                    totalSum += number;
+                    unmarkedSum += number;
                 }
             }
         }
