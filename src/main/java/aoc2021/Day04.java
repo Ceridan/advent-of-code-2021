@@ -34,6 +34,10 @@ public class Day04 {
 
         for (int number : bingo.getNumbers()) {
             for (Board board : bingo.getBoards()) {
+                if (winningBoards.contains(board.getId())) {
+                    continue;
+                }
+
                 int result = board.markNumber(number);
 
                 if (result > -1) {
