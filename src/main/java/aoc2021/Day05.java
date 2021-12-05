@@ -51,8 +51,8 @@ public class Day05 {
         public void addLine(Line line) {
             int deltaX = Math.abs(line.start.x - line.end.x);
             int deltaY = Math.abs(line.start.y - line.end.y);
-            int stepX = deltaX == 0 ? 0 : (line.end.x - line.start.x) / deltaX;
-            int stepY = deltaY == 0 ? 0 : (line.end.y - line.start.y) / deltaY;
+            int stepX = Integer.signum(line.end.x - line.start.x);
+            int stepY = Integer.signum(line.end.y - line.start.y);
             Point coord = new Point(line.start.x, line.start.y);
 
             for (int i = 0; i <= Math.max(deltaX, deltaY); i++) {
