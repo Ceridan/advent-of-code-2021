@@ -21,14 +21,14 @@ class Day05Tests {
 
     @Test
     void part1_example() {
-        int result = Day05.part1(data, 10);
+        int result = Day05.part1(data);
 
         assertEquals(5, result);
     }
 
     @Test
     void part2_example() {
-        int result = Day05.part2(data, 10);
+        int result = Day05.part2(data);
 
         assertEquals(12, result);
     }

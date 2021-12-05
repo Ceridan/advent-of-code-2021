@@ -1,8 +1,7 @@
 package aoc2021;
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -10,14 +9,13 @@ import java.util.stream.Collectors;
 public class Day05 {
     public static void main(String[] args) throws FileNotFoundException {
         List<String> data = Utils.readInputAsStringArray("day05.txt");
-        int boardSize = 1000;
 
-        System.out.printf("Day 05, part 1: %d\n", part1(data, boardSize));
-        System.out.printf("Day 05, part 2: %d\n", part2(data, boardSize));
+        System.out.printf("Day 05, part 1: %d\n", part1(data));
+        System.out.printf("Day 05, part 2: %d\n", part2(data));
     }
 
-    static int part1(List<String> data, int boardSize) {
-        Board board = new Board(boardSize);
+    static int part1(List<String> data) {
+        Board board = new Board();
         List<Line> lines = Line.parseData(data).stream()
             .filter(line -> line.start.x == line.end.x || line.start.y == line.end.y)
             .collect(Collectors.toList());
@@ -29,8 +27,8 @@ public class Day05 {
         return board.getIntersectionCount();
     }
 
-    static int part2(List<String> data, int boardSize) {
-        Board board = new Board(boardSize);
+    static int part2(List<String> data) {
+        Board board = new Board();
         List<Line> lines = Line.parseData(data).stream()
             .filter(line -> {
                 int deltaX = Math.abs(line.start.x - line.end.x);
@@ -47,28 +45,25 @@ public class Day05 {
     }
 
     private static class Board {
-        private final int[][] board;
+        private final Map<Point, Integer> board = new HashMap<>();
         private int intersectionCount = 0;
-
-        public Board(int boardSize) {
-            board = new int[boardSize][boardSize];
-        }
 
         public void addLine(Line line) {
             int deltaX = Math.abs(line.start.x - line.end.x);
             int deltaY = Math.abs(line.start.y - line.end.y);
             int stepX = deltaX == 0 ? 0 : (line.end.x - line.start.x) / deltaX;
             int stepY = deltaY == 0 ? 0 : (line.end.y - line.start.y) / deltaY;
-            int x = line.start.x;
-            int y = line.start.y;
+            Point coord = new Point(line.start.x, line.start.y);
 
             for (int i = 0; i <= Math.max(deltaX, deltaY); i++) {
-                if (board[y][x]++ == 1) {
+                int value = board.getOrDefault(coord, 0);
+                if (value == 1) {
                     intersectionCount++;
                 }
+                board.put(coord, value + 1);
 
-                x += stepX;
-                y += stepY;
+
+                coord = new Point(coord.x + stepX, coord.y + stepY);
             }
         }
 
@@ -110,6 +105,19 @@ public class Day05 {
         public Point(int x, int y) {
             this.x = x;
             this.y = y;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Point point = (Point) o;
+            return x == point.x && y == point.y;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(x, y);
         }
     }
 }
