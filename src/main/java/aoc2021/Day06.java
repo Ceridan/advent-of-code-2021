@@ -1,6 +1,7 @@
 package aoc2021;
 
 import java.io.FileNotFoundException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,11 +23,11 @@ public class Day06 {
     }
 
     static long calculateSpawns(List<Integer> data, int days) {
-        Map<Integer, Long> activeSpawnersByDays = new HashMap<>();
+        long[] activeSpawnersByDays = new long[7];
         Map<Integer, Long> newSpawnersByDays = new HashMap<>();
 
         for (Integer state : data) {
-            activeSpawnersByDays.merge(state % 7, 1L, Long::sum);
+            activeSpawnersByDays[state % 7] += 1L;
         }
 
         for (int i = 1; i <= days; i++) {
@@ -34,13 +35,12 @@ public class Day06 {
 
             long newSpawners = newSpawnersByDays.getOrDefault(i, 0L);
             newSpawnersByDays.remove(i);
-            activeSpawnersByDays.merge(day, newSpawners, Long::sum);
+            activeSpawnersByDays[day] += newSpawners;
 
-            long activeSpawners = activeSpawnersByDays.get(day);
-            newSpawnersByDays.merge(i + 9, activeSpawners, Long::sum);
+            newSpawnersByDays.merge(i + 9, activeSpawnersByDays[day], Long::sum);
         }
 
-        long activeSpawners = activeSpawnersByDays.values().stream().reduce(0L, Long::sum);
+        long activeSpawners = Arrays.stream(activeSpawnersByDays).sum();
         long newSpawners = newSpawnersByDays.values().stream().reduce(0L, Long::sum);
 
         return activeSpawners + newSpawners - newSpawnersByDays.getOrDefault(days + 9, 0L);
