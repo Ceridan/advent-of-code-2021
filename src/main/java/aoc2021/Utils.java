@@ -3,8 +3,10 @@ package aoc2021;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 class Utils {
     private final static String BASE_PATH = "src/main/resources/aoc2021/";
@@ -33,6 +35,16 @@ class Utils {
         }
 
         return data;
+    }
+
+    public static List<Integer> readCommaSeparatedInputAsIntegerArray(String filename) throws FileNotFoundException {
+        File input = getInputFile(filename);
+        Scanner scanner = new Scanner(input);
+        String line = scanner.nextLine();
+
+        return Arrays.stream(line.split(","))
+            .map(Integer::parseInt)
+            .collect(Collectors.toList());
     }
 
     public static File getInputFile(String filename) {
