@@ -9,19 +9,19 @@ public class Day06 {
     public static void main(String[] args) throws FileNotFoundException {
         List<Integer> data = Utils.readCommaSeparatedInputAsIntegerArray("day06.txt");
 
-        System.out.printf("Day 06, part 1: %d\n", part1(data, 80));
-        System.out.printf("Day 06, part 2: %d\n", part2(data, 256));
+        System.out.printf("Day 06, part 1: %d\n", part1(data));
+        System.out.printf("Day 06, part 2: %d\n", part2(data));
     }
 
-    static long part1(List<Integer> data, int days) {
-        return calculateSpawns(data, days);
+    static long part1(List<Integer> data) {
+        return calculateSpawns(data, 80);
     }
 
-    static long part2(List<Integer> data, int days) {
-        return calculateSpawns(data, days);
+    static long part2(List<Integer> data) {
+        return calculateSpawns(data, 256);
     }
 
-    private static long calculateSpawns(List<Integer> data, int days) {
+    static long calculateSpawns(List<Integer> data, int days) {
         Map<Integer, Long> spawnDays = new HashMap<>();
         Map<Integer, Long> newFishes = new HashMap<>();
 

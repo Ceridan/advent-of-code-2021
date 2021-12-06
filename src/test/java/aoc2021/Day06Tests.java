@@ -11,7 +11,7 @@ class Day06Tests {
     void part1_example_for_18_days() {
         List<Integer> state = List.of(3, 4, 3, 1, 2);
 
-        long result = Day06.part1(state, 18);
+        long result = Day06.calculateSpawns(state, 18);
 
         assertEquals(26L, result);
     }
@@ -20,7 +20,7 @@ class Day06Tests {
     void part1_example_for_80_days() {
         List<Integer> state = List.of(3, 4, 3, 1, 2);
 
-        long result = Day06.part1(state, 80);
+        long result = Day06.calculateSpawns(state, 80);
 
         assertEquals(5934L, result);
     }
@@ -29,7 +29,7 @@ class Day06Tests {
     void part2_example_for_256_days() {
         List<Integer> state = List.of(3, 4, 3, 1, 2);
 
-        long result = Day06.part2(state, 256);
+        long result = Day06.calculateSpawns(state, 256);
 
         assertEquals(26984457539L, result);
     }
