@@ -22,28 +22,28 @@ public class Day06 {
     }
 
     static long calculateSpawns(List<Integer> data, int days) {
-        Map<Integer, Long> spawnDays = new HashMap<>();
-        Map<Integer, Long> newFishes = new HashMap<>();
+        Map<Integer, Long> activeSpawnersByDays = new HashMap<>();
+        Map<Integer, Long> newSpawnersByDays = new HashMap<>();
 
         for (Integer state : data) {
-            spawnDays.merge(state % 7, 1L, Long::sum);
+            activeSpawnersByDays.merge(state % 7, 1L, Long::sum);
         }
 
         for (int i = 1; i <= days; i++) {
             int day = i % 7;
 
-            long newSpawners = newFishes.getOrDefault(i, 0L);
-            newFishes.remove(i);
-            spawnDays.merge(day, newSpawners, Long::sum);
+            long newSpawners = newSpawnersByDays.getOrDefault(i, 0L);
+            newSpawnersByDays.remove(i);
+            activeSpawnersByDays.merge(day, newSpawners, Long::sum);
 
-            long totalSpawners = spawnDays.get(day);
-            newFishes.merge(i + 9, totalSpawners, Long::sum);
+            long activeSpawners = activeSpawnersByDays.get(day);
+            newSpawnersByDays.merge(i + 9, activeSpawners, Long::sum);
         }
 
-        long oldSpawners = spawnDays.values().stream().reduce(0L, Long::sum);
-        long newSpawners = newFishes.values().stream().reduce(0L, Long::sum);
+        long activeSpawners = activeSpawnersByDays.values().stream().reduce(0L, Long::sum);
+        long newSpawners = newSpawnersByDays.values().stream().reduce(0L, Long::sum);
 
-        return oldSpawners + newSpawners - newFishes.getOrDefault(days + 9, 0L);
+        return activeSpawners + newSpawners - newSpawnersByDays.getOrDefault(days + 9, 0L);
     }
 }
 
