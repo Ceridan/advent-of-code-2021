@@ -14,27 +14,32 @@ public class Day07 {
 
     static int part1(List<Integer> data) {
         Map<Integer, Integer> positionToCount = new HashMap<>();
+
+        int minPosition = Integer.MAX_VALUE;
+        int maxPosition = 0;
+
         for (int position : data) {
             positionToCount.merge(position, 1, Integer::sum);
+
+            if (position < minPosition) {
+                minPosition = position;
+            }
+
+            if (position > maxPosition) {
+                maxPosition = position;
+            }
         }
 
-        ArrayList<Integer> sortedPositions = new ArrayList<>(positionToCount.keySet());
-        sortedPositions.sort(Comparator.naturalOrder());
-
-        int currentFuel = calculateFuel(positionToCount, sortedPositions.get(0), (p1, p2) -> Math.abs(p1 - p2));
+        int currentFuel = calculateFuel(positionToCount, minPosition, (p1, p2) -> Math.abs(p1 - p2));
         int bestFuel = currentFuel;
 
         int leftCount = 0;
-        int rightCount = data.size() - positionToCount.get(sortedPositions.get(0));
+        int rightCount = data.size() - positionToCount.get(minPosition);
 
-        for (int i = 1; i < sortedPositions.size(); i++) {
-            int prevPosition = sortedPositions.get(i - 1);
-            int currentPosition = sortedPositions.get(i);
-            int diff = currentPosition - prevPosition;
-
-            leftCount += positionToCount.get(prevPosition);
-            rightCount -= positionToCount.get(currentPosition);
-            currentFuel += leftCount * diff - rightCount * diff - positionToCount.get(currentPosition) * diff;
+        for (int i = minPosition + 1; i <= maxPosition; i++) {
+            leftCount += positionToCount.getOrDefault(i - 1, 0);
+            rightCount -= positionToCount.getOrDefault(i, 0);
+            currentFuel += leftCount - rightCount - positionToCount.getOrDefault(i, 0);
 
             if (currentFuel < bestFuel) {
                 bestFuel = currentFuel;
