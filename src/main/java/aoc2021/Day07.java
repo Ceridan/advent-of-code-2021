@@ -15,20 +15,12 @@ public class Day07 {
     static int part1(List<Integer> data) {
         Map<Integer, Integer> positionToCount = new HashMap<>();
 
-        int minPosition = Integer.MAX_VALUE;
-        int maxPosition = 0;
-
         for (int position : data) {
             positionToCount.merge(position, 1, Integer::sum);
-
-            if (position < minPosition) {
-                minPosition = position;
-            }
-
-            if (position > maxPosition) {
-                maxPosition = position;
-            }
         }
+
+        int minPosition = Collections.min(positionToCount.keySet());
+        int maxPosition = Collections.max(positionToCount.keySet());
 
         int currentFuel = calculateFuel(positionToCount, minPosition, (p1, p2) -> Math.abs(p1 - p2));
         int bestFuel = currentFuel;
@@ -52,20 +44,12 @@ public class Day07 {
     static int part2(List<Integer> data) {
         Map<Integer, Integer> positionToCount = new HashMap<>();
 
-        int minPosition = Integer.MAX_VALUE;
-        int maxPosition = 0;
-
         for (int position : data) {
             positionToCount.merge(position, 1, Integer::sum);
-
-            if (position < minPosition) {
-                minPosition = position;
-            }
-
-            if (position > maxPosition) {
-                maxPosition = position;
-            }
         }
+
+        int minPosition = Collections.min(positionToCount.keySet());
+        int maxPosition = Collections.max(positionToCount.keySet());
 
         int bestFuel = Integer.MAX_VALUE;
 
