@@ -2,9 +2,9 @@ package aoc2021;
 
 import java.io.FileNotFoundException;
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Day08 {
     public static void main(String[] args) throws FileNotFoundException {
@@ -43,84 +43,31 @@ public class Day08 {
 
     private static int parsePattern(String patternWithOutput) {
         String[] input = patternWithOutput.split("\\|");
-        Set<String> patterns = Arrays.stream(input[0].trim().split(" ")).collect(Collectors.toSet());
+        List<String> patterns = Arrays.stream(input[0].trim().split(" ")).collect(Collectors.toList());
         String[] outputs = input[1].trim().split(" ");
 
         Digit[] digits = new Digit[10];
-        Map<Digit, Integer> digitToValue = new HashMap<>();
 
-        // Search for 1, 4, 7, 8
-        Iterator<String> iterator = patterns.iterator();
-        while (iterator.hasNext()) {
-            String pattern = iterator.next();
-            switch (pattern.length()) {
-                case 2:
-                    digits[1] = new Digit(pattern);
-                    digitToValue.put(digits[1], 1);
-                    iterator.remove();
-                    break;
-                case 3:
-                    digits[7] = new Digit(pattern);
-                    digitToValue.put(digits[7], 7);
-                    iterator.remove();
-                    break;
-                case 4:
-                    digits[4] = new Digit(pattern);
-                    digitToValue.put(digits[4], 4);
-                    iterator.remove();
-                    break;
-                case 7:
-                    digits[8] = new Digit(pattern);
-                    digitToValue.put(digits[8], 8);
-                    iterator.remove();
-                    break;
-            }
-        }
+        digits[1] = findDigitByPredicate(patterns, d -> d.getSize() == 2);
+        digits[4] = findDigitByPredicate(patterns, d -> d.getSize() == 4);
+        digits[7] = findDigitByPredicate(patterns, d -> d.getSize() == 3);
+        digits[8] = findDigitByPredicate(patterns, d -> d.getSize() == 7);
+        digits[3] = findDigitByPredicate(patterns, d -> d.getSize() == 5 && d.contains(digits[7]));
+        digits[9] = findDigitByPredicate(patterns, d -> d.getSize() == 6 && d.contains(digits[4]));
+        digits[0] = findDigitByPredicate(patterns, d -> d.getSize() == 6 && !d.contains(digits[4]) && d.contains(digits[7]));
+        digits[5] = findDigitByPredicate(patterns, d -> d.getSize() == 5 && digits[9].contains(d) && !d.contains(digits[7]));
+        digits[6] = findDigitByPredicate(patterns, d -> d.getSize() == 6 && d.contains(digits[5]) && !d.contains(digits[7]));
+        digits[2] = findDigitByPredicate(patterns, d -> d.getSize() == 5 && !d.equals(digits[3]) && !d.equals(digits[5]));
 
-        // Search for 0, 3, 9
-        iterator = patterns.iterator();
-        while (iterator.hasNext()) {
-            String pattern = iterator.next();
-            var digit = new Digit(pattern);
-
-            if (digit.getSize() == 5 && digit.contains(digits[1])) {
-                digits[3] = digit;
-                digitToValue.put(digits[3], 3);
-                iterator.remove();
-            }
-
-            else if (digit.getSize() == 6 && digit.contains(digits[4])) {
-                digits[9] = digit;
-                digitToValue.put(digits[9], 9);
-                iterator.remove();
-            }
-
-            else if (digit.getSize() == 6 && digit.contains(digits[7])) {
-                digits[0] = digit;
-                digitToValue.put(digits[0], 0);
-                iterator.remove();
-            }
-        }
-
-        // Search for 5
-        digits[5] = findDigitByPredicate(patterns, d -> d.getSize() == 5 && digits[9].contains(d));
-        digitToValue.put(digits[5], 5);
-        patterns.remove(digits[5] .pattern);
-
-        // Search for 6
-        digits[6] = findDigitByPredicate(patterns, d -> d.getSize() == 6 && d.contains(digits[5]));
-        digitToValue.put(digits[6], 6);
-        patterns.remove(digits[6].pattern);
-
-        // Search for 2
-        digits[2] = findDigitByPredicate(patterns, d -> true);
-        digitToValue.put(digits[2], 2);
+        Map<Digit, Integer> digitToValue = IntStream
+            .range(0, digits.length)
+            .boxed()
+            .collect(Collectors.toMap(i -> digits[i], i -> i));
 
         int number = 0;
         int modifier = 1;
         for (int i = outputs.length - 1; i >= 0; i--) {
-            Digit digit = new Digit(outputs[i]);
-            int value = digitToValue.get(digit);
+            int value = digitToValue.get(new Digit(outputs[i]));
             number += value * modifier;
             modifier *= 10;
         }
@@ -141,20 +88,14 @@ public class Day08 {
     }
 
     private static class Digit {
-        private final String pattern;
         private final String digit;
         private final Set<Character> digitCharSet;
 
         private Digit(String pattern) {
-            this.pattern = pattern;
             char[] chars = pattern.toCharArray();
             Arrays.sort(chars);
             digit = new String(chars);
             digitCharSet = digit.chars().mapToObj(it -> (char) it).collect(Collectors.toSet());
-        }
-
-        public String getPattern() {
-            return pattern;
         }
 
         public int getSize() {
