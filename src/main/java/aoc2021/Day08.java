@@ -2,6 +2,8 @@ package aoc2021;
 
 import java.io.FileNotFoundException;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class Day08 {
@@ -101,40 +103,17 @@ public class Day08 {
         }
 
         // Search for 5
-        @SuppressWarnings("OptionalGetWithoutIsPresent")
-        Digit five = patterns
-            .stream()
-            .map(Digit::new)
-            .filter(d -> d.getSize() == 5 && digits[9].contains(d))
-            .findFirst()
-            .get();
-
-        digits[5] = five;
+        digits[5] = findDigitByPredicate(patterns, d -> d.getSize() == 5 && digits[9].contains(d));
         digitToValue.put(digits[5], 5);
-        patterns.remove(five.pattern);
+        patterns.remove(digits[5] .pattern);
 
         // Search for 6
-        @SuppressWarnings("OptionalGetWithoutIsPresent")
-        Digit six = patterns
-            .stream()
-            .map(Digit::new)
-            .filter(d -> d.getSize() == 6 && d.contains(digits[5]))
-            .findFirst()
-            .get();
-
-        digits[6] = six;
+        digits[6] = findDigitByPredicate(patterns, d -> d.getSize() == 6 && d.contains(digits[5]));
         digitToValue.put(digits[6], 6);
-        patterns.remove(six.pattern);
+        patterns.remove(digits[6].pattern);
 
         // Search for 2
-        @SuppressWarnings("OptionalGetWithoutIsPresent")
-        Digit two = patterns
-            .stream()
-            .map(Digit::new)
-            .findFirst()
-            .get();
-
-        digits[2] = two;
+        digits[2] = findDigitByPredicate(patterns, d -> true);
         digitToValue.put(digits[2], 2);
 
         int number = 0;
@@ -149,6 +128,17 @@ public class Day08 {
         return number;
     }
 
+    private static Digit findDigitByPredicate(Collection<String> patterns, Predicate<? super Digit> predicate) {
+        @SuppressWarnings("OptionalGetWithoutIsPresent")
+        Digit digit = patterns
+            .stream()
+            .map(Digit::new)
+            .filter(predicate)
+            .findFirst()
+            .get();
+
+        return digit;
+    }
 
     private static class Digit {
         private final String pattern;
