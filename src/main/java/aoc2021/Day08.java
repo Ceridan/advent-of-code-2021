@@ -101,33 +101,40 @@ public class Day08 {
         }
 
         // Search for 5
-        iterator = patterns.iterator();
-        while (iterator.hasNext()) {
-            String pattern = iterator.next();
-            var digit = new Digit(pattern);
+        @SuppressWarnings("OptionalGetWithoutIsPresent")
+        Digit five = patterns
+            .stream()
+            .map(Digit::new)
+            .filter(d -> d.getSize() == 5 && digits[9].contains(d))
+            .findFirst()
+            .get();
 
-            if (digit.getSize() == 5 && digits[9].contains(digit)) {
-                digits[5] = digit;
-                digitToValue.put(digits[5], 5);
-                iterator.remove();
-            }
-        }
+        digits[5] = five;
+        digitToValue.put(digits[5], 5);
+        patterns.remove(five.pattern);
 
         // Search for 6
-        iterator = patterns.iterator();
-        while (iterator.hasNext()) {
-            String pattern = iterator.next();
-            var digit = new Digit(pattern);
+        @SuppressWarnings("OptionalGetWithoutIsPresent")
+        Digit six = patterns
+            .stream()
+            .map(Digit::new)
+            .filter(d -> d.getSize() == 6 && d.contains(digits[5]))
+            .findFirst()
+            .get();
 
-            if (digit.getSize() == 6 && digit.contains(digits[5])) {
-                digits[6] = digit;
-                digitToValue.put(digits[6], 6);
-                iterator.remove();
-            }
-        }
+        digits[6] = six;
+        digitToValue.put(digits[6], 6);
+        patterns.remove(six.pattern);
 
         // Search for 2
-        digits[2] = new Digit(patterns.toArray(String[]::new)[0]);
+        @SuppressWarnings("OptionalGetWithoutIsPresent")
+        Digit two = patterns
+            .stream()
+            .map(Digit::new)
+            .findFirst()
+            .get();
+
+        digits[2] = two;
         digitToValue.put(digits[2], 2);
 
         int number = 0;
@@ -144,18 +151,20 @@ public class Day08 {
 
 
     private static class Digit {
+        private final String pattern;
         private final String digit;
         private final Set<Character> digitCharSet;
 
         private Digit(String pattern) {
+            this.pattern = pattern;
             char[] chars = pattern.toCharArray();
             Arrays.sort(chars);
             digit = new String(chars);
             digitCharSet = digit.chars().mapToObj(it -> (char) it).collect(Collectors.toSet());
         }
 
-        public String getDigit() {
-            return digit;
+        public String getPattern() {
+            return pattern;
         }
 
         public int getSize() {
