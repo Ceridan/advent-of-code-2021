@@ -36,4 +36,3 @@ public class Day01 {
         return increases;
     }
 }
-

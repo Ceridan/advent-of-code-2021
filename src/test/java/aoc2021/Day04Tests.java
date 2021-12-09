@@ -44,5 +44,3 @@ class Day04Tests {
         assertEquals(1924, result);
     }
 }
-
-

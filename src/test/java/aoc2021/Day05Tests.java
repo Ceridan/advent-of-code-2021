@@ -33,5 +33,3 @@ class Day05Tests {
         assertEquals(12, result);
     }
 }
-
-

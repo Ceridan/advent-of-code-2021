@@ -25,5 +25,3 @@ class Day07Tests {
         assertEquals(168, result);
     }
 }
-
-

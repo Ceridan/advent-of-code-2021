@@ -46,4 +46,3 @@ public class Day06 {
         return activeSpawners + newSpawners - newSpawnersByDays.getOrDefault(days + 9, 0L);
     }
 }
-

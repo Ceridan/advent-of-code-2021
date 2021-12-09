@@ -29,5 +29,3 @@ class Day09Tests {
         assertEquals(1134, result);
     }
 }
-
-

@@ -77,4 +77,3 @@ public class Day07 {
         return fuel;
     }
 }
-
