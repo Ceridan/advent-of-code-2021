@@ -66,13 +66,13 @@ public class Day09 {
         int[][] caveMap = new int[data.size() + 2][data.get(0).length() + 2];
 
         for (int x = 0; x < caveMap[0].length; x++) {
-            caveMap[0][x] = Integer.MAX_VALUE;
-            caveMap[caveMap.length - 1][x] = Integer.MAX_VALUE;
+            caveMap[0][x] = 9;
+            caveMap[caveMap.length - 1][x] = 9;
         }
 
         for (int y = 0; y < caveMap.length; y++) {
-            caveMap[y][0] = Integer.MAX_VALUE;
-            caveMap[y][caveMap[0].length - 1] = Integer.MAX_VALUE;
+            caveMap[y][0] = 9;
+            caveMap[y][caveMap[0].length - 1] = 9;
         }
 
         for (int y = 1; y < caveMap.length - 1; y++) {
