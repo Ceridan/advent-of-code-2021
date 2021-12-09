@@ -43,8 +43,8 @@ public class Day08 {
 
     private static int parsePattern(String patternWithOutput) {
         String[] input = patternWithOutput.split("\\|");
-        List<String> patterns = Arrays.stream(input[0].trim().split(" ")).collect(Collectors.toList());
-        String[] outputs = input[1].trim().split(" ");
+        List<Digit> patterns = Arrays.stream(input[0].trim().split(" ")).map(Digit::new).collect(Collectors.toList());
+        List<Digit> outputs = Arrays.stream(input[1].trim().split(" ")).map(Digit::new).collect(Collectors.toList());
 
         Digit[] digits = new Digit[10];
 
@@ -66,8 +66,8 @@ public class Day08 {
 
         int number = 0;
         int modifier = 1;
-        for (int i = outputs.length - 1; i >= 0; i--) {
-            int value = digitToValue.get(new Digit(outputs[i]));
+        for (int i = outputs.size() - 1; i >= 0; i--) {
+            int value = digitToValue.get(outputs.get(i));
             number += value * modifier;
             modifier *= 10;
         }
@@ -75,11 +75,10 @@ public class Day08 {
         return number;
     }
 
-    private static Digit findDigitByPredicate(Collection<String> patterns, Predicate<? super Digit> predicate) {
+    private static Digit findDigitByPredicate(Collection<Digit> patterns, Predicate<? super Digit> predicate) {
         @SuppressWarnings("OptionalGetWithoutIsPresent")
         Digit digit = patterns
             .stream()
-            .map(Digit::new)
             .filter(predicate)
             .findFirst()
             .get();
