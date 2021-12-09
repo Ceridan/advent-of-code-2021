@@ -76,10 +76,10 @@ public class Day09 {
         }
 
         for (int y = 1; y < caveMap.length - 1; y++) {
-            CharSequence chars = data.get(y - 1);
+            String line = data.get(y - 1);
 
             for (int x = 1; x < caveMap[0].length - 1; x++) {
-                caveMap[y][x] = Integer.parseInt(chars, x - 1, x, 10);
+                caveMap[y][x] = Integer.parseInt(line, x - 1, x, 10);
             }
         }
 
