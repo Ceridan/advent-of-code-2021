@@ -29,7 +29,7 @@ public class Day03 {
             }
         }
 
-        return binaryToInt(gamma) * binaryToInt(epsilon);
+        return Integer.parseInt(new String(gamma), 2) * Integer.parseInt(new String(epsilon), 2);
     }
 
     static int part2(List<String> data) {
@@ -89,25 +89,11 @@ public class Day03 {
         List<Integer> numbers = new ArrayList<>(data.size());
 
         for (String binary : data) {
-            int number = binaryToInt(binary.toCharArray());
+            int number = Integer.parseInt(binary, 2);
             numbers.add(number);
         }
 
         return numbers;
-    }
-
-    private static int binaryToInt(char[] binary) {
-        int number = 0;
-        int multiplier = 1;
-
-        for (int i = binary.length - 1; i >= 0; i--) {
-            if (binary[i] == '1') {
-                number += multiplier;
-            }
-            multiplier *= 2;
-        }
-
-        return number;
     }
 
     private static class BitSets {
