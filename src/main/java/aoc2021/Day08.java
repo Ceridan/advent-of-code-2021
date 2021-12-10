@@ -87,18 +87,17 @@ public class Day08 {
     }
 
     private static class Digit {
-        private final String digit;
         private final Set<Character> digitCharSet;
 
         private Digit(String pattern) {
-            char[] chars = pattern.toCharArray();
-            Arrays.sort(chars);
-            digit = new String(chars);
-            digitCharSet = digit.chars().mapToObj(it -> (char) it).collect(Collectors.toSet());
+            digitCharSet = pattern
+                .chars()
+                .mapToObj(it -> (char) it)
+                .collect(Collectors.toSet());
         }
 
         public int getSize() {
-            return digit.length();
+            return digitCharSet.size();
         }
 
         public Set<Character> getDigitCharSet() {
@@ -113,13 +112,13 @@ public class Day08 {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            Digit otherDigit = (Digit) o;
-            return Objects.equals(digit, otherDigit.digit);
+            Digit digit = (Digit) o;
+            return Objects.equals(digitCharSet, digit.digitCharSet);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(digit);
+            return Objects.hash(digitCharSet);
         }
     }
 }
