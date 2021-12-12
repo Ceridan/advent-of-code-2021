@@ -14,7 +14,7 @@ public class Day11 {
     }
 
     static int part1(List<String> data, int steps) {
-        int[][] octopusMap = buildOctopusMap(data);
+        Map<Point, Integer> octopusMap = buildOctopusMap(data);
         int totalFlashCount = 0;
 
         for (int i = 1; i <= steps; i++) {
@@ -25,32 +25,30 @@ public class Day11 {
     }
 
     static int part2(List<String> data) {
-        int[][] octopusMap = buildOctopusMap(data);
-        int octopusMapSize = (octopusMap.length - 2) * (octopusMap[0].length - 2);
+        Map<Point, Integer> octopusMap = buildOctopusMap(data);
         int step = 1;
 
-        while (calculateStep(octopusMap) < octopusMapSize) {
+        while (calculateStep(octopusMap) < octopusMap.size()) {
             step++;
         }
 
         return step;
     }
 
-    private static int calculateStep(int[][] octopusMap) {
-        Queue<Point> queue = new ArrayDeque<>((octopusMap.length - 2) * (octopusMap[0].length - 2));
+    private static int calculateStep(Map<Point, Integer> octopusMap) {
+        Queue<Point> queue = new ArrayDeque<>(octopusMap.size());
         Set<Point> flashed = new HashSet<>();
         int flashCount = 0;
 
-        for (int y = 1; y < octopusMap.length - 1; y++) {
-            for (int x = 1; x < octopusMap[0].length - 1; x++) {
-                octopusMap[y][x] = (octopusMap[y][x] + 1) % 10;
+        for (Map.Entry<Point, Integer> entry : octopusMap.entrySet()) {
+            Point point = entry.getKey();
+            int newEnergy = (entry.getValue() + 1) % 10;
+            octopusMap.put(point, newEnergy);
 
-                if (octopusMap[y][x] == 0) {
-                    Point point = new Point(x, y);
-                    flashed.add(point);
-                    queue.add(point);
-                    flashCount++;
-                }
+            if (newEnergy == 0) {
+                flashed.add(point);
+                queue.add(point);
+                flashCount++;
             }
         }
 
@@ -61,13 +59,14 @@ public class Day11 {
                 for (int dx = -1; dx <= 1; dx++) {
                     Point nextPoint = new Point(point.x + dx, point.y + dy);
 
-                    if (flashed.contains(nextPoint) || octopusMap[nextPoint.y][nextPoint.x] == -1) {
+                    if (flashed.contains(nextPoint) || !octopusMap.containsKey(nextPoint)) {
                         continue;
                     }
 
-                    octopusMap[nextPoint.y][nextPoint.x] = (octopusMap[nextPoint.y][nextPoint.x] + 1) % 10;
+                    int newEnergy = (octopusMap.get(nextPoint) + 1) % 10;
+                    octopusMap.put(nextPoint, (octopusMap.get(nextPoint) + 1) % 10);
 
-                    if (octopusMap[nextPoint.y][nextPoint.x] == 0) {
+                    if (newEnergy == 0) {
                         flashed.add(nextPoint);
                         queue.add(nextPoint);
                         flashCount++;
@@ -79,24 +78,15 @@ public class Day11 {
         return flashCount;
     }
 
-    private static int[][] buildOctopusMap(List<String> data) {
-        int[][] octopusMap = new int[data.size() + 2][data.get(0).length() + 2];
+    private static Map<Point, Integer> buildOctopusMap(List<String> data) {
+        Map<Point, Integer> octopusMap = new HashMap<>();
 
-        for (int x = 0; x < octopusMap[0].length; x++) {
-            octopusMap[0][x] = -1;
-            octopusMap[octopusMap.length - 1][x] = -1;
-        }
+        for (int y = 0; y < data.size(); y++) {
+            String line = data.get(y);
 
-        for (int y = 0; y < octopusMap.length; y++) {
-            octopusMap[y][0] = -1;
-            octopusMap[y][octopusMap[0].length - 1] = -1;
-        }
-
-        for (int y = 1; y < octopusMap.length - 1; y++) {
-            String line = data.get(y - 1);
-
-            for (int x = 1; x < octopusMap[0].length - 1; x++) {
-                octopusMap[y][x] = Integer.parseInt(line, x - 1, x, 10);
+            for (int x = 0; x < line.length(); x++) {
+                Point point = new Point(x, y);
+                octopusMap.put(point, Integer.parseInt(line, x, x + 1, 10));
             }
         }
 
