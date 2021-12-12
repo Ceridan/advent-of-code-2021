@@ -15,7 +15,7 @@ public class Day12 {
     static int part1(List<String> data) {
         Map<String, Cave> cavesMap = buildCavesMap(data);
         VisitedMonitor vm = new VisitedMonitor(cavesMap);
-        return countPaths(cavesMap, cavesMap.get("start"), vm);
+        return countPaths(cavesMap.get("start"), vm);
     }
 
     static int part2(List<String> data) {
@@ -23,7 +23,7 @@ public class Day12 {
         int totalPathCount = 0;
 
         VisitedMonitor vm = new VisitedMonitor(cavesMap);
-        int singlePassPathCount = countPaths(cavesMap, cavesMap.get("start"), vm);
+        int singlePassPathCount = countPaths(cavesMap.get("start"), vm);
         totalPathCount += singlePassPathCount;
 
         for (String caveName : cavesMap.keySet()) {
@@ -32,14 +32,14 @@ public class Day12 {
             }
 
             vm = new VisitedMonitor(cavesMap, caveName);
-            int pathCount = countPaths(cavesMap, cavesMap.get("start"), vm);
+            int pathCount = countPaths(cavesMap.get("start"), vm);
             totalPathCount += pathCount - singlePassPathCount;
         }
 
         return totalPathCount;
     }
 
-    private static int countPaths(Map<String, Cave> cavesMap, Cave cave, VisitedMonitor vm) {
+    private static int countPaths(Cave cave, VisitedMonitor vm) {
         if (cave.name.equals("end")) {
             return 1;
         }
@@ -53,7 +53,7 @@ public class Day12 {
         int pathCount = 0;
 
         for (Cave neighborCave : cave.getPaths()) {
-            pathCount += countPaths(cavesMap, neighborCave, vm);
+            pathCount += countPaths(neighborCave, vm);
         }
 
         vm.remove(cave.name);
