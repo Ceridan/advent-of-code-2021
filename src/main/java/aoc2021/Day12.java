@@ -14,33 +14,49 @@ public class Day12 {
 
     static int part1(List<String> data) {
         Map<String, Cave> cavesMap = buildCavesMap(data);
-        return countPaths(cavesMap, cavesMap.get("start"), new HashSet<>());
+        VisitedMonitor vm = new VisitedMonitor(cavesMap);
+        return countPaths(cavesMap, cavesMap.get("start"), vm);
     }
 
     static int part2(List<String> data) {
-        return 0;
+        Map<String, Cave> cavesMap = buildCavesMap(data);
+        int totalPathCount = 0;
+
+        VisitedMonitor vm = new VisitedMonitor(cavesMap);
+        int singlePassPathCount = countPaths(cavesMap, cavesMap.get("start"), vm);
+        totalPathCount += singlePassPathCount;
+
+        for (String caveName : cavesMap.keySet()) {
+            if (caveName.equals("start") || caveName.equals("end") || caveName.equals(caveName.toUpperCase())) {
+                continue;
+            }
+
+            vm = new VisitedMonitor(cavesMap, caveName);
+            int pathCount = countPaths(cavesMap, cavesMap.get("start"), vm);
+            totalPathCount += pathCount - singlePassPathCount;
+        }
+
+        return totalPathCount;
     }
 
-    static int countPaths(Map<String, Cave> cavesMap, Cave cave, Set<String> visited) {
+    private static int countPaths(Map<String, Cave> cavesMap, Cave cave, VisitedMonitor vm) {
         if (cave.name.equals("end")) {
             return 1;
         }
 
-        if (visited.contains(cave.name)) {
+        if (vm.contains(cave.name)) {
             return 0;
         }
 
-        if (!cave.isBigCave()) {
-            visited.add(cave.name);
-        }
+        vm.add(cave.name);
 
         int pathCount = 0;
 
         for (Cave neighborCave : cave.getPaths()) {
-            pathCount += countPaths(cavesMap, neighborCave, visited);
+            pathCount += countPaths(cavesMap, neighborCave, vm);
         }
 
-        visited.remove(cave.name);
+        vm.remove(cave.name);
 
         return pathCount;
     }
@@ -70,24 +86,54 @@ public class Day12 {
 
     private static class Cave {
         private final String name;
-        private final boolean size;
         private final List<Cave> paths = new ArrayList<>();
 
         private Cave(String name) {
             this.name = name;
-            this.size = name.equals(name.toUpperCase());
-        }
-
-        public boolean isBigCave() {
-            return size;
-        }
-
-        public String getName() {
-            return name;
         }
 
         public List<Cave> getPaths() {
             return paths;
+        }
+    }
+
+    private static class VisitedMonitor {
+        private final Map<String, Integer> visited = new HashMap<>();
+        private final Map<String, Integer> limits = new HashMap<>();
+
+        public VisitedMonitor(Map<String, Cave> cavesMap) {
+            for (String caveName : cavesMap.keySet()) {
+                if (caveName.equals(caveName.toLowerCase())) {
+                    visited.put(caveName, 0);
+                    limits.put(caveName, 1);
+                }
+
+            }
+        }
+
+        public VisitedMonitor(Map<String, Cave> cavesMap, String twiceLimitCave) {
+            this(cavesMap);
+            limits.put(twiceLimitCave, 2);
+        }
+
+        public boolean contains(String name) {
+            if (!visited.containsKey(name)) {
+                return false;
+            }
+
+            return Objects.equals(visited.get(name), limits.get(name));
+        }
+
+        public void add(String name) {
+            if (visited.containsKey(name)) {
+                visited.merge(name, 1, Integer::sum);
+            }
+        }
+
+        public void remove(String name) {
+            if (visited.containsKey(name)) {
+                visited.merge(name, -1, Integer::sum);
+            }
         }
     }
 }
