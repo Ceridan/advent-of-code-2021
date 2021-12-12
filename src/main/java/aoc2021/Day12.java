@@ -51,7 +51,6 @@ public class Day12 {
         vm.add(cave.name);
 
         int pathCount = 0;
-
         for (Cave neighborCave : cave.getPaths()) {
             pathCount += countPaths(neighborCave, vm);
         }
@@ -107,7 +106,6 @@ public class Day12 {
                     visited.put(caveName, 0);
                     limits.put(caveName, 1);
                 }
-
             }
         }
 
