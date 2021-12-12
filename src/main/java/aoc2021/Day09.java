@@ -13,16 +13,20 @@ public class Day09 {
     }
 
     static int part1(List<String> data) {
-        int[][] caveMap = buildCaveMap(data);
+        Map<Point, Integer> caveMap = buildCaveMap(data);
         int risks = 0;
 
-        for (int y = 1; y < caveMap.length - 1; y++) {
-            for (int x = 1; x < caveMap[0].length - 1; x++) {
-                int val = caveMap[y][x];
+        for (Map.Entry<Point, Integer> entry : caveMap.entrySet()) {
+            Point point = entry.getKey();
+            int value = entry.getValue();
 
-                if (val < caveMap[y - 1][x] && val < caveMap[y + 1][x] && val < caveMap[y][x - 1] && val < caveMap[y][x + 1]) {
-                    risks += val + 1;
-                }
+            int topValue = caveMap.getOrDefault(new Point(point.x, point.y - 1), 9);
+            int rightValue = caveMap.getOrDefault(new Point(point.x + 1, point.y), 9);
+            int bottomValue = caveMap.getOrDefault(new Point(point.x, point.y + 1), 9);
+            int leftValue = caveMap.getOrDefault(new Point(point.x - 1, point.y), 9);
+
+            if (value < topValue && value < rightValue && value < bottomValue && value < leftValue) {
+                risks += value + 1;
             }
         }
 
@@ -30,18 +34,15 @@ public class Day09 {
     }
 
     static int part2(List<String> data) {
-        int[][] caveMap = buildCaveMap(data);
+        Map<Point, Integer> caveMap = buildCaveMap(data);
         Set<Point> visited = new HashSet<>();
         List<Integer> basinSizes = new ArrayList<>();
 
-        for (int y = 1; y < caveMap.length - 1; y++) {
-            for (int x = 1; x < caveMap[0].length - 1; x++) {
-                Point point = new Point(x, y);
-                int basinSize = dfs(caveMap, visited, point);
+        for (Point point : caveMap.keySet()) {
+            int basinSize = dfs(caveMap, visited, point);
 
-                if (basinSize > 0) {
-                    basinSizes.add(basinSize);
-                }
+            if (basinSize > 0) {
+                basinSizes.add(basinSize);
             }
         }
 
@@ -49,37 +50,28 @@ public class Day09 {
         return basinSizes.get(0) * basinSizes.get(1) * basinSizes.get(2);
     }
 
-    private static int dfs(int[][] caveMap, Set<Point> visited, Point point) {
-        if (caveMap[point.y][point.x] >= 9 || visited.contains(point)) {
+    private static int dfs(Map<Point, Integer> caveMap, Set<Point> visited, Point point) {
+        if (caveMap.getOrDefault(point, 9) == 9 || visited.contains(point)) {
             return 0;
         }
 
         visited.add(point);
 
-        return dfs(caveMap, visited, new Point(point.x - 1, point.y)) +
+        return dfs(caveMap, visited, new Point(point.x, point.y - 1)) +
             dfs(caveMap, visited, new Point(point.x + 1, point.y)) +
-            dfs(caveMap, visited, new Point(point.x, point.y - 1)) +
-            dfs(caveMap, visited, new Point(point.x, point.y + 1)) + 1;
+            dfs(caveMap, visited, new Point(point.x, point.y + 1)) +
+            dfs(caveMap, visited, new Point(point.x - 1, point.y)) + 1;
     }
 
-    private static int[][] buildCaveMap(List<String> data) {
-        int[][] caveMap = new int[data.size() + 2][data.get(0).length() + 2];
+    private static Map<Point, Integer> buildCaveMap(List<String> data) {
+        Map<Point, Integer> caveMap = new HashMap<>();
 
-        for (int x = 0; x < caveMap[0].length; x++) {
-            caveMap[0][x] = 9;
-            caveMap[caveMap.length - 1][x] = 9;
-        }
+        for (int y = 0; y < data.size(); y++) {
+            String line = data.get(y);
 
-        for (int y = 0; y < caveMap.length; y++) {
-            caveMap[y][0] = 9;
-            caveMap[y][caveMap[0].length - 1] = 9;
-        }
-
-        for (int y = 1; y < caveMap.length - 1; y++) {
-            String line = data.get(y - 1);
-
-            for (int x = 1; x < caveMap[0].length - 1; x++) {
-                caveMap[y][x] = Integer.parseInt(line, x - 1, x, 10);
+            for (int x = 0; x < line.length(); x++) {
+                Point point = new Point(x, y);
+                caveMap.put(point, Integer.parseInt(line, x, x + 1, 10));
             }
         }
 
