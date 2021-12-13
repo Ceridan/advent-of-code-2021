@@ -62,7 +62,7 @@ public class Day13 {
     }
 
     private static class Paper {
-        private Map<Point, Integer> paper = new HashMap<>();
+        private Set<Point> paper = new HashSet<>();
 
         public Paper(List<String> data) {
             init(data);
@@ -71,7 +71,6 @@ public class Day13 {
         public int countDots() {
             return paper.size();
         }
-
 
         public String print() {
             Point max = getBottomRightDot();
@@ -82,7 +81,7 @@ public class Day13 {
                 for (int x = 0; x <= max.x; x++) {
                     Point point = new Point(x, y);
 
-                    if (paper.containsKey(point)) {
+                    if (paper.contains(point)) {
                         sb.append("#");
                     } else {
                         sb.append(" ");
@@ -105,14 +104,13 @@ public class Day13 {
         }
 
         private void foldUp(int foldY) {
-            Map<Point, Integer> newPaper = new HashMap<>();
+            Set<Point> newPaper = new HashSet<>();
 
-            for (Point point : paper.keySet()) {
+            for (Point point : paper) {
                 if (point.y < foldY) {
-                    newPaper.put(point, paper.get(point));
+                    newPaper.add(point);
                 } else {
-                    Point newPoint = new Point(point.x, 2 * foldY - point.y);
-                    newPaper.put(newPoint, paper.getOrDefault(newPoint, 0) + 1);
+                    newPaper.add(new Point(point.x, 2 * foldY - point.y));
                 }
             }
 
@@ -120,14 +118,13 @@ public class Day13 {
         }
 
         private void foldLeft(int foldX) {
-            Map<Point, Integer> newPaper = new HashMap<>();
+            Set<Point> newPaper = new HashSet<>();
 
-            for (Point point : paper.keySet()) {
+            for (Point point : paper) {
                 if (point.x < foldX) {
-                    newPaper.put(point, paper.get(point));
+                    newPaper.add(point);
                 } else {
-                    Point newPoint = new Point(2 * foldX - point.x, point.y);
-                    newPaper.put(newPoint, paper.getOrDefault(newPoint, 0) + 1);
+                    newPaper.add(new Point(2 * foldX - point.x, point.y));
                 }
             }
 
@@ -138,7 +135,7 @@ public class Day13 {
             int maxX = 0;
             int maxY = 0;
 
-            for (Point point : paper.keySet()) {
+            for (Point point : paper) {
                 maxX = Math.max(maxX, point.x);
                 maxY = Math.max(maxY, point.y);
             }
@@ -154,9 +151,7 @@ public class Day13 {
 
             for (String line : dots) {
                 String[] coords = line.split(",");
-                Point point = new Point(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]));
-
-                paper.put(point, 1);
+                paper.add(new Point(Integer.parseInt(coords[0]), Integer.parseInt(coords[1])));
             }
         }
     }
