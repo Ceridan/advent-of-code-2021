@@ -42,17 +42,17 @@ public class Day13 {
         }
 
         public static List<Instruction> buildInstructions(List<String> data) {
-            List<String> instrcts = data
+            List<String> lines = data
                 .stream()
                 .filter(line -> line.startsWith("fold"))
                 .collect(Collectors.toList());
 
             List<Instruction> instructions = new ArrayList<>();
 
-            for (String instrct : instrcts) {
-                String[] instrctParts = instrct.split("=");
-                char direction = instrctParts[0].charAt(instrctParts[0].length() - 1);
-                int value = Integer.parseInt(instrctParts[1]);
+            for (String line : lines) {
+                String[] instructionParts = line.split("=");
+                char direction = instructionParts[0].charAt(instructionParts[0].length() - 1);
+                int value = Integer.parseInt(instructionParts[1]);
 
                 instructions.add(new Instruction(direction, value));
             }
