@@ -10,7 +10,7 @@ public class Day13 {
         List<String> data = Utils.readInputAsStringArray("day13.txt");
 
         System.out.printf("Day 13, part 1: %d\n", part1(data));
-        System.out.printf("Day 13, part 2: %d\n", part2(data));
+        System.out.printf("Day 13, part 2:\n%s", part2(data));
     }
 
     static int part1(List<String> data) {
@@ -21,7 +21,7 @@ public class Day13 {
         return paper.countDots();
     }
 
-    static int part2(List<String> data) {
+    static String part2(List<String> data) {
         Paper paper = new Paper(data);
         List<Instruction> instructions = Instruction.buildInstructions(data);
 
@@ -29,8 +29,7 @@ public class Day13 {
             paper.fold(instruction);
         }
 
-        paper.print();
-        return paper.countDots();
+        return paper.print();
     }
 
     private static class Instruction {
@@ -74,38 +73,27 @@ public class Day13 {
         }
 
 
-        public void print() {
-            int minX = Integer.MAX_VALUE;
-            int minY = Integer.MAX_VALUE;
-            int maxX = 0;
-            int maxY = 0;
+        public String print() {
+            Point max = getBottomRightDot();
+            StringBuilder sb = new StringBuilder();
+            sb.append("\n");
 
-            for (Point point : paper.keySet()) {
-                minX = Math.min(minX, point.x);
-                minY = Math.min(minY, point.y);
-                maxX = Math.max(maxX, point.x);
-                maxY = Math.max(maxY, point.y);
-            }
-
-            int deltaX = maxX - minX;
-            int deltaY = maxY - minY;
-
-            System.out.println();
-
-            for (int y = minY; y <= maxY; y++) {
-                for (int x = minX; x <= maxX; x++) {
+            for (int y = 0; y <= max.y; y++) {
+                for (int x = 0; x <= max.x; x++) {
                     Point point = new Point(x, y);
 
                     if (paper.containsKey(point)) {
-                        System.out.print("#");
+                        sb.append("#");
                     } else {
-                        System.out.print(" ");
+                        sb.append(" ");
                     }
                 }
-                System.out.print("\n");
+                sb.append("\n");
             }
 
-            System.out.println();
+            sb.append("\n");
+
+            return sb.toString();
         }
 
         public void fold(Instruction instruction) {
@@ -144,6 +132,18 @@ public class Day13 {
             }
 
             paper = newPaper;
+        }
+
+        private Point getBottomRightDot() {
+            int maxX = 0;
+            int maxY = 0;
+
+            for (Point point : paper.keySet()) {
+                maxX = Math.max(maxX, point.x);
+                maxY = Math.max(maxY, point.y);
+            }
+
+            return new Point(maxX, maxY);
         }
 
         private void init(List<String> data) {

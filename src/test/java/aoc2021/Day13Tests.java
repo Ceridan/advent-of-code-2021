@@ -40,8 +40,14 @@ class Day13Tests {
 
     @Test
     void part2_example() {
-        int result = Day13.part2(data);
+        String result = Day13.part2(data);
 
-        assertEquals(16, result);
+        assertEquals("\n" +
+            "#####\n" +
+            "#   #\n" +
+            "#   #\n" +
+            "#   #\n" +
+            "#####\n" +
+            "\n", result);
     }
 }
