@@ -22,55 +22,79 @@ public class Day14 {
     }
 
     private static long calculatePolymerFormula(List<String> data, int steps) {
-        List<Character> template = data.get(0).chars().mapToObj(e -> (char) e).collect(Collectors.toList());
-        Map<String, Character> insertions = getInsertions(data);
-        Map<Character, Long> charCounts = insertions.values().stream().collect(Collectors.toMap(ch -> ch, ch -> 0L, (existing, replacement) -> existing));
+        Map<CharPair, Long> template = buildTemplate(data.get(0));
+        Map<CharPair, Character> insertions = getInsertions(data);
+        Map<Character, Long> charCounts = new HashMap<>();
 
-        for (Character ch : template) {
+        for (char ch : data.get(0).toCharArray()) {
             charCounts.merge(ch, 1L, Long::sum);
         }
 
-        long b = 1;
-
         for (int step = 1; step <= steps; step++) {
-            System.out.println(charCounts);
-            System.out.println(charCounts.get('B') - b);
-            b = charCounts.get('B');
-            List<Character> newTemplate = new ArrayList<>(template.size() * 2 - 1);
+            Map<CharPair, Long> newTemplate = new HashMap<>();
 
-            for (int i = 0; i < template.size() - 1; i++) {
-                Character left = template.get(i);
-                Character right = template.get(i + 1);
-                Character middle = insertions.get("" + left + right);
-
-                newTemplate.add(left);
-
-                if (middle != null) {
-                    newTemplate.add(middle);
-                    charCounts.merge(middle, 1L, Long::sum);
-                }
+            for (Map.Entry<CharPair, Long> pair : template.entrySet()) {
+                Character element = insertions.get(pair.getKey());
+                newTemplate.merge(new CharPair(pair.getKey().left, element), pair.getValue(), Long::sum);
+                newTemplate.merge(new CharPair(element, pair.getKey().right), pair.getValue(), Long::sum);
+                charCounts.merge(element, pair.getValue(), Long::sum);
             }
-
-            newTemplate.add(template.get(template.size() - 1));
 
             template = newTemplate;
         }
-        System.out.println(charCounts);
-        System.out.println(charCounts.get('B') - b);
+
         long min = charCounts.values().stream().mapToLong(v -> v).min().orElse(0L);
         long max = charCounts.values().stream().mapToLong(v -> v).max().orElse(0L);
 
         return max - min;
     }
 
-    private static Map<String, Character> getInsertions(List<String> data) {
-        Map<String, Character> insertions = new HashMap<>();
+    private static Map<CharPair, Long> buildTemplate(String templateString) {
+        Map<CharPair, Long> template = new HashMap<>();
+
+        for (int i = 0; i < templateString.length() - 1; i++) {
+            template.merge(new CharPair(templateString.charAt(i), templateString.charAt(i + 1)), 1L, Long::sum);
+        }
+
+        return template;
+    }
+
+    private static Map<CharPair, Character> getInsertions(List<String> data) {
+        Map<CharPair, Character> insertions = new HashMap<>();
 
         for (int i = 2; i < data.size(); i++) {
             String[] insertionParts = data.get(i).split(" -> ");
-            insertions.put(insertionParts[0], insertionParts[1].charAt(0));
+            insertions.put(new CharPair(insertionParts[0]), insertionParts[1].charAt(0));
         }
 
         return insertions;
+    }
+
+    private static class CharPair {
+        private final Character left;
+        private final Character right;
+
+        private CharPair(String pair) {
+            this.left = pair.charAt(0);
+            this.right = pair.charAt(1);
+        }
+
+        private CharPair(Character left, Character right) {
+            this.left = left;
+            this.right = right;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            CharPair charPair = (CharPair) o;
+            return Objects.equals(left, charPair.left) && Objects.equals(right, charPair.right);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(left, right);
+        }
     }
 }
