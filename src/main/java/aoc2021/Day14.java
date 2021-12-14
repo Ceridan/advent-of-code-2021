@@ -1,8 +1,10 @@
 package aoc2021;
 
 import java.io.FileNotFoundException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class Day14 {
 
