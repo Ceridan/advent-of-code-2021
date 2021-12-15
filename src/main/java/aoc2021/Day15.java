@@ -26,12 +26,10 @@ public class Day15 {
     private static int dijkstra(List<Edge>[] edges, int startVertexId, int endVertexId) {
         int n = edges.length;
         int[] dist = new int[n];
-        int[] path = new int[n];
         PriorityQueue<VertexRisk> pq = new PriorityQueue<>(n, Comparator.comparingInt(e -> e.risk));
 
         for (int i = 0; i < n; i++) {
             dist[i] = i == startVertexId ? 0 : Integer.MAX_VALUE;
-            path[i] = -1;
             pq.add(new VertexRisk(i, dist[i]));
         }
 
@@ -49,30 +47,12 @@ public class Day15 {
 
                 if (dist[v] > dist[u] + risk) {
                     dist[v] = dist[u] + risk;
-                    path[v] = u;
                     pq.add(new VertexRisk(v, dist[v]));
                 }
             }
         }
 
-        printPath(path, startVertexId, endVertexId);
-
         return dist[endVertexId];
-    }
-
-    private static void printPath(int[] path, int startVertexId, int endVertexId) {
-        System.out.println();
-
-        int currentVertexId = endVertexId;
-
-        while (currentVertexId != startVertexId) {
-            System.out.printf("%d <- ", currentVertexId);
-            currentVertexId = path[currentVertexId];
-        }
-
-        System.out.printf("%d", currentVertexId);
-
-        System.out.println();
     }
 
     private static List<Edge>[] buildEdges(List<String> data) {
@@ -87,9 +67,19 @@ public class Day15 {
                 int vertexId = y * maxX + x;
                 edges[vertexId] = new ArrayList<>();
 
+                if (x > 0) {
+                    int cost = Integer.parseInt(data.get(y), x - 1, x, 10);
+                    edges[vertexId].add(new Edge(vertexId, vertexId - 1, cost));
+                }
+
                 if (x < maxX - 1) {
                     int cost = Integer.parseInt(data.get(y), x + 1, x + 2, 10);
                     edges[vertexId].add(new Edge(vertexId, vertexId + 1, cost));
+                }
+
+                if (y > 0) {
+                    int cost = Integer.parseInt(data.get(y - 1), x, x + 1, 10);
+                    edges[vertexId].add(new Edge(vertexId, (y - 1) * maxX + x, cost));
                 }
 
                 if (y < maxY - 1) {

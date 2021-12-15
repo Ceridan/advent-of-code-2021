@@ -30,6 +30,6 @@ class Day15Tests {
     void part2_example() {
         int result = Day15.part2(data);
 
-        assertEquals(0, result);
+        assertEquals(315, result);
     }
 }
