@@ -75,32 +75,32 @@ public class Day15 {
         }
 
         public int getVertexRisk(int vertex) {
-            VertexPosition pos = VertexPosition.parse(vertex, maxY);
-            int baseX = pos.x % this.risksMap[0].length;
-            int baseY = pos.y % this.risksMap.length;
+            int x = vertex % maxY;
+            int y = vertex / maxY;
+            int baseX = x % this.risksMap[0].length;
+            int baseY = y % this.risksMap.length;
             int baseRisk = risksMap[baseY][baseX];
 
-            int tmpRisk = ((baseRisk - 1 + pos.x / this.risksMap[0].length) % 9) + 1;
-            return ((tmpRisk - 1 + pos.y / this.risksMap.length) % 9) + 1;
+            int tmpRisk = ((baseRisk - 1 + x / this.risksMap[0].length) % 9) + 1;
+            return ((tmpRisk - 1 + y / this.risksMap.length) % 9) + 1;
         }
 
         public List<Integer> getNeighbors(int vertex) {
-            VertexPosition pos = VertexPosition.parse(vertex, maxY);
             List<Integer> vertices = new ArrayList<>();
 
-            if (pos.x > 0) {
-                vertices.add(new VertexPosition(pos.x - 1, pos.y).toVertex(maxX));
+            if ((vertex % maxX) > 0) {
+                vertices.add(vertex - 1);
             }
 
-            if (pos.x < maxX - 1) {
-                vertices.add(new VertexPosition(pos.x + 1, pos.y).toVertex(maxX));
+            if ((vertex % maxX) < maxX - 1) {
+                vertices.add(vertex + 1);
             }
-            if (pos.y > 0) {
-                vertices.add(new VertexPosition(pos.x, pos.y - 1).toVertex(maxX));
+            if (vertex - maxX >= 0) {
+                vertices.add(vertex - maxX);
             }
 
-            if (pos.y < maxY - 1) {
-                vertices.add(new VertexPosition(pos.x, pos.y + 1).toVertex(maxX));
+            if (vertex + maxX < maxX * maxY) {
+                vertices.add(vertex + maxX);
             }
 
             return vertices;
@@ -121,26 +121,6 @@ public class Day15 {
             }
 
             return risks;
-        }
-    }
-
-    private static class VertexPosition {
-        private final int x;
-        private final int y;
-
-        public VertexPosition(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        public int toVertex(int maxX) {
-            return y * maxX + x;
-        }
-
-        public static VertexPosition parse(int vertex, int maxY) {
-            int x = vertex % maxY;
-            int y = vertex / maxY;
-            return new VertexPosition(x, y);
         }
     }
 }
