@@ -13,23 +13,22 @@ public class Day15 {
     }
 
     static int part1(List<String> data) {
-        int maxX = data.size();
-        int maxY = data.get(0).length();
-        List<Edge>[] edges = buildEdges(data);
-        return dijkstra(edges, 0, maxX * maxY - 1);
+        RisksMap rm = new RisksMap(data, 1);
+        return dijkstra(rm, rm.maxX * rm.maxY - 1, 0);
     }
 
     static int part2(List<String> data) {
-        return 0;
+        RisksMap rm = new RisksMap(data, 5);
+        return dijkstra(rm, rm.maxX * rm.maxY - 1, 0);
     }
 
-    private static int dijkstra(List<Edge>[] edges, int startVertexId, int endVertexId) {
-        int n = edges.length;
+    private static int dijkstra(RisksMap rm, int startVertex, int endVertex) {
+        int n = rm.maxX * rm.maxY;
         int[] dist = new int[n];
         PriorityQueue<VertexRisk> pq = new PriorityQueue<>(n, Comparator.comparingInt(e -> e.risk));
 
         for (int i = 0; i < n; i++) {
-            dist[i] = i == startVertexId ? 0 : Integer.MAX_VALUE;
+            dist[i] = i == startVertex ? 0 : Integer.MAX_VALUE;
             pq.add(new VertexRisk(i, dist[i]));
         }
 
@@ -41,10 +40,9 @@ public class Day15 {
                 continue;
             }
 
-            for (Edge edge : edges[u]) {
-                int v = edge.target;
-                int risk = edge.risk;
+            int risk = rm.getVertexRisk(u);
 
+            for (int v : rm.getNeighbors(u)) {
                 if (dist[v] > dist[u] + risk) {
                     dist[v] = dist[u] + risk;
                     pq.add(new VertexRisk(v, dist[v]));
@@ -52,44 +50,7 @@ public class Day15 {
             }
         }
 
-        return dist[endVertexId];
-    }
-
-    private static List<Edge>[] buildEdges(List<String> data) {
-
-        int maxX = data.size();
-        int maxY = data.get(0).length();
-
-        List<Edge>[] edges = new List[maxX * maxY];
-
-        for (int y = 0; y < maxY; y++) {
-            for (int x = 0; x < maxX; x++) {
-                int vertexId = y * maxX + x;
-                edges[vertexId] = new ArrayList<>();
-
-                if (x > 0) {
-                    int cost = Integer.parseInt(data.get(y), x - 1, x, 10);
-                    edges[vertexId].add(new Edge(vertexId, vertexId - 1, cost));
-                }
-
-                if (x < maxX - 1) {
-                    int cost = Integer.parseInt(data.get(y), x + 1, x + 2, 10);
-                    edges[vertexId].add(new Edge(vertexId, vertexId + 1, cost));
-                }
-
-                if (y > 0) {
-                    int cost = Integer.parseInt(data.get(y - 1), x, x + 1, 10);
-                    edges[vertexId].add(new Edge(vertexId, (y - 1) * maxX + x, cost));
-                }
-
-                if (y < maxY - 1) {
-                    int cost = Integer.parseInt(data.get(y + 1), x, x + 1, 10);
-                    edges[vertexId].add(new Edge(vertexId, (y + 1) * maxX + x, cost));
-                }
-            }
-        }
-
-        return edges;
+        return dist[endVertex];
     }
 
     private static class VertexRisk {
@@ -102,15 +63,84 @@ public class Day15 {
         }
     }
 
-    private static class Edge {
-        private final int source;
-        private final int target;
-        private final int risk;
+    private static class RisksMap {
+        private final int[][] risksMap;
+        private final int maxX;
+        private final int maxY;
 
-        private Edge(int source, int target, int risk) {
-            this.source = source;
-            this.target = target;
-            this.risk = risk;
+        public RisksMap(List<String> data, int dimensions) {
+            this.risksMap = buildRisksMap(data);
+            this.maxY = data.size() * dimensions;
+            this.maxX = data.get(0).length() * dimensions;
+        }
+
+        public int getVertexRisk(int vertex) {
+            VertexPosition pos = VertexPosition.parse(vertex, maxY);
+            int baseX = pos.x % this.risksMap[0].length;
+            int baseY = pos.y % this.risksMap.length;
+            int baseRisk = risksMap[baseY][baseX];
+
+            int tmpRisk = ((baseRisk - 1 + pos.x / this.risksMap[0].length) % 9) + 1;
+            return ((tmpRisk - 1 + pos.y / this.risksMap.length) % 9) + 1;
+        }
+
+        public List<Integer> getNeighbors(int vertex) {
+            VertexPosition pos = VertexPosition.parse(vertex, maxY);
+            List<Integer> vertices = new ArrayList<>();
+
+            if (pos.x > 0) {
+                vertices.add(new VertexPosition(pos.x - 1, pos.y).toVertex(maxX));
+            }
+
+            if (pos.x < maxX - 1) {
+                vertices.add(new VertexPosition(pos.x + 1, pos.y).toVertex(maxX));
+            }
+            if (pos.y > 0) {
+                vertices.add(new VertexPosition(pos.x, pos.y - 1).toVertex(maxX));
+            }
+
+            if (pos.y < maxY - 1) {
+                vertices.add(new VertexPosition(pos.x, pos.y + 1).toVertex(maxX));
+            }
+
+            return vertices;
+        }
+
+        private int[][] buildRisksMap(List<String> data) {
+            int maxX = data.size();
+            int maxY = data.get(0).length();
+
+            int[][] risks = new int[maxY][maxX];
+
+            for (int y = 0; y < maxY; y++) {
+                String line = data.get(y);
+
+                for (int x = 0; x < maxX; x++) {
+                    risks[y][x] = Integer.parseInt(line, x, x + 1, 10);
+                }
+            }
+
+            return risks;
+        }
+    }
+
+    private static class VertexPosition {
+        private final int x;
+        private final int y;
+
+        public VertexPosition(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        public int toVertex(int maxX) {
+            return y * maxX + x;
+        }
+
+        public static VertexPosition parse(int vertex, int maxY) {
+            int x = vertex % maxY;
+            int y = vertex / maxY;
+            return new VertexPosition(x, y);
         }
     }
 }
