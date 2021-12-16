@@ -69,10 +69,10 @@ public class Day16 {
         }
     }
 
-    private static class LiteralValuePacket extends Packet {
+    private static class Literal extends Packet {
         private final long value;
 
-        public LiteralValuePacket(int version, int type, long value) {
+        public Literal(int version, int type, long value) {
             super(version, type);
             this.value = value;
         }
@@ -101,7 +101,7 @@ public class Day16 {
             int type = Integer.parseInt("" + it.next() + it.next() + it.next(), 2);
 
             if (type == 4) {
-                return new LiteralValuePacket(version, type, parseValue(it));
+                return new Literal(version, type, parseValue(it));
             }
 
             Packet packet = new Packet(version, type);
