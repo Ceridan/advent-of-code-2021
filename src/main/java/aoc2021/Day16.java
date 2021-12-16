@@ -159,15 +159,11 @@ public class Day16 {
         private String decodeHexEncoded(String hexEncoded) {
             StringBuilder sb = new StringBuilder();
 
-            for (char ch : hexEncoded.toCharArray()) {
-                sb.append(hexToBin(ch));
+            for (char hex : hexEncoded.toCharArray()) {
+                sb.append(hexDecodeMap.get(hex));
             }
 
             return sb.toString();
-        }
-
-        private String hexToBin(Character hex) {
-            return hexDecodeMap.get(hex);
         }
 
         private void initializeHexDecodeMap() {
