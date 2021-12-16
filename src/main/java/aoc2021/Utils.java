@@ -47,6 +47,13 @@ class Utils {
             .collect(Collectors.toList());
     }
 
+    public static String readInputAsString(String filename) throws FileNotFoundException {
+        File input = getInputFile(filename);
+        Scanner scanner = new Scanner(input);
+
+        return scanner.nextLine();
+    }
+
     public static File getInputFile(String filename) {
         return new File(BASE_PATH + filename);
     }
