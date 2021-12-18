@@ -37,7 +37,7 @@ class Day08Tests {
     }
 
     @Test
-    void part2_full_exqample() {
+    void part2_full_example() {
         int result = Day08.part2(data);
 
         assertEquals(61229, result);
