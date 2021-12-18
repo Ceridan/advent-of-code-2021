@@ -15,11 +15,12 @@ public class Day17 {
 
     static int part1(String data) {
         PointRange range = buildTargetArea(data);
-        Point start = new Point(0, 0);
-        int vxStep = Integer.signum(range.min.x - start.x);
+        Point start = range.min.x > 0
+            ? new Point(0, 0)
+            : new Point(2 * range.max.x - (range.max.x - range.min.x), 0);
         int bestY = Integer.MIN_VALUE;
 
-        for (int vx = start.x + vxStep; vx <= range.max.x; vx += vxStep){
+        for (int vx = start.x; vx <= range.max.x; vx++){
             for (int vy = range.max.y; vy <= Math.abs(start.x - range.max.y); vy++) {
                 Point velocity = new Point(vx, vy);
                 Point current = new Point(start.x, start.y);
@@ -28,10 +29,10 @@ public class Day17 {
                 do {
                     current.x += velocity.x;
                     current.y += velocity.y;
-                    velocity.x = (velocity.x == 0) ? 0 : velocity.x - vxStep;
-                    velocity.y -= 1;
+                    velocity.x = (velocity.x == 0) ? 0 : velocity.x - 1;
+                    velocity.y--;
                     maxY = Math.max(current.y, maxY);
-                } while (!range.IsMissing(current, vxStep) && !range.IsInRange(current));
+                } while (!range.IsMissing(current) && !range.IsInRange(current));
 
                 if (range.IsInRange(current)) {
                     bestY = Math.max(bestY, maxY);
@@ -44,20 +45,21 @@ public class Day17 {
 
     static int part2(String data) {
         PointRange range = buildTargetArea(data);
-        Point start = new Point(0, 0);
-        int vxStep = Integer.signum(range.min.x - start.x);
+        Point start = range.min.x > 0
+            ? new Point(0, 0)
+            : new Point(2 * range.max.x - (range.max.x - range.min.x), 0);
         int velocityCount = 0;
 
-        for (int vx = start.x + vxStep; vx <= range.max.x; vx += vxStep){
+        for (int vx = start.x; vx <= range.max.x; vx++){
             for (int vy = range.max.y; vy <= Math.abs(start.x - range.max.y); vy++) {
                 Point velocity = new Point(vx, vy);
                 Point current = new Point(start.x, start.y);
                 do {
                     current.x += velocity.x;
                     current.y += velocity.y;
-                    velocity.x = (velocity.x == 0) ? 0 : velocity.x - vxStep;
-                    velocity.y -= 1;
-                } while (!range.IsMissing(current, vxStep) && !range.IsInRange(current));
+                    velocity.x = (velocity.x == 0) ? 0 : velocity.x - 1;
+                    velocity.y--;
+                } while (!range.IsMissing(current) && !range.IsInRange(current));
 
                 if (range.IsInRange(current)) {
                     velocityCount++;
@@ -96,8 +98,8 @@ public class Day17 {
                 max.y <= point.y;
         }
 
-        public boolean IsMissing(Point point, int signX) {
-            return max.y > point.y || (signX >= 0 && max.x < point.x) || (signX < 0 && min.x > point.x);
+        public boolean IsMissing(Point point) {
+            return max.y > point.y || max.x < point.x;
         }
     }
 
