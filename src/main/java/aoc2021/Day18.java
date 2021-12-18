@@ -1,7 +1,9 @@
 package aoc2021;
 
 import java.io.FileNotFoundException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -21,12 +23,14 @@ public class Day18 {
     }
 
     static long part2(List<String> data) {
+        List<Node> nodes = data.stream().map(SnailfishMath::parseFormula).collect(Collectors.toList());
+
         long bestMagnitude = 0;
 
-        for (int i = 0; i < data.size() - 1; i++) {
-            for (int j = i + 1; j < data.size(); j++) {
-                bestMagnitude = Math.max(bestMagnitude, SnailfishMath.addition(List.of(data.get(i), data.get(j))).getMagnitude());
-                bestMagnitude = Math.max(bestMagnitude, SnailfishMath.addition(List.of(data.get(j), data.get(i))).getMagnitude());
+        for (int i = 0; i < nodes.size() - 1; i++) {
+            for (int j = i + 1; j < nodes.size(); j++) {
+                bestMagnitude = Math.max(bestMagnitude, SnailfishMath.addition(nodes.get(i).copy(), nodes.get(j).copy()).getMagnitude());
+                bestMagnitude = Math.max(bestMagnitude, SnailfishMath.addition(nodes.get(j).copy(), nodes.get(i).copy()).getMagnitude());
             }
         }
 
@@ -260,6 +264,16 @@ public class Day18 {
         public long getMagnitude() {
             return 3 * left.getMagnitude() + 2 * right.getMagnitude();
         }
+
+        public Node copy() {
+            Node node = new Node();
+            node.level = level;
+            Node left = this.left.copy();
+            Node right = this.right.copy();
+            node.addChildren(left, right);
+            return node;
+        }
+
     }
 
     static class ValueNode extends Node {
@@ -287,6 +301,13 @@ public class Day18 {
         @Override
         public long getMagnitude() {
             return value;
+        }
+
+        @Override
+        public Node copy() {
+            ValueNode valueNode = new ValueNode(value);
+            valueNode.level = level;
+            return valueNode;
         }
     }
 }
