@@ -97,8 +97,9 @@ public class Day19 {
         return false;
     }
 
+    // This produces 48 combinations instead of 24. Should be fixed by getting only possible rotations.
     private static List<Direction> getDirections() {
-        ArrayList<Direction> directions = new ArrayList<>(24);
+        ArrayList<Direction> directions = new ArrayList<>(48);
         for (int shift = 0; shift <= 5; shift++) {
             for (int x : List.of(-1, 1)) {
                 for (int y : List.of(-1, 1)) {
