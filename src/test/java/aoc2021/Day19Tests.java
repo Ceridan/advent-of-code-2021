@@ -145,24 +145,6 @@ class Day19Tests {
         "-652,-548,-490",
         "30,-46,-14");
 
-//    @Test
-//    void overlap_sample() {
-//        List<String> sample = List.of(
-//            "--- scanner 0 ---",
-//            "0,2,0",
-//            "4,1,0",
-//            "3,3,0",
-//            "",
-//            "--- scanner 1 ---",
-//            "-1,-1,0",
-//            "-5,0,0",
-//            "-2,1,0");
-//
-//        int result = Day19.part1(sample);
-//
-//        assertEquals(3, result);
-//    }
-
     @Test
     void part1_example() {
         int result = Day19.part1(data);

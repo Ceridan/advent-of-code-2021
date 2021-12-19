@@ -55,10 +55,10 @@ public class Day19 {
 
         for (Direction direction : directions) {
             targetPositions = new HashMap<>();
-            targetScanner.rotate(direction);
+            List<Point> rotation = targetScanner.rotate(direction);
 
             for (Point sourceBeacon : sourceScanner.beacons) {
-                for (Point targetBeacon : targetScanner.beacons) {
+                for (Point targetBeacon : rotation) {
                     Point position = new Point(
                         sourceScanner.position.x + sourceBeacon.x - targetBeacon.x,
                         sourceScanner.position.y + sourceBeacon.y - targetBeacon.y,
@@ -67,6 +67,7 @@ public class Day19 {
                     if (targetPositions.merge(position, 1, Integer::sum) == 12) {
                         targetScanner.position = position;
                         targetScanner.direction = new Direction(1, 1, 1, 0);
+                        targetScanner.beacons = rotation;
                         return true;
                     }
                 }
@@ -82,7 +83,7 @@ public class Day19 {
 
     private static List<Direction> getDirections() {
         ArrayList<Direction> directions = new ArrayList<>(24);
-        for (int shift = 0; shift <= 2; shift++) {
+        for (int shift = 0; shift <= 5; shift++) {
             for (int x : List.of(-1, 1)) {
                 for (int y : List.of(-1, 1)) {
                     for (int z : List.of(-1, 1)) {
@@ -125,7 +126,7 @@ public class Day19 {
 
     private static class Scanner {
         private final int id;
-        private final List<Point> beacons = new ArrayList<>();
+        private List<Point> beacons = new ArrayList<>();
         private Point position = new Point(0, 0, 0);
         private Direction direction = new Direction(1, 1, 1, 0);
 
@@ -133,35 +134,12 @@ public class Day19 {
             this.id = id;
         }
 
-        public void rotate(Direction newDirection) {
+        public List<Point> rotate(Direction newDirection) {
+            List<Point> rotation = new ArrayList<>(beacons.size());
             for (Point beacon : beacons) {
-                int bx = beacon.x * direction.x;
-                int by = beacon.y * direction.y;
-                int bz = beacon.z * direction.z;
-
-                int shiftDiff = (3 + newDirection.shift - direction.shift) % 3;
-
-                if (shiftDiff == 1) {
-                    int tmp = bz;
-                    bz = by;
-                    by = bx;
-                    bx = tmp;
-                } else if (shiftDiff == 2) {
-                    int tmp = bx;
-                    bx = by;
-                    by = bz;
-                    bz = tmp;
-                }
-
-                beacon.x = bx * newDirection.x;
-                beacon.y = by * newDirection.y;
-                beacon.z = bz * newDirection.z;
+                rotation.add(beacon.changedWithDirection(newDirection));
             }
-
-            direction.x = newDirection.x;
-            direction.y = newDirection.y;
-            direction.z = newDirection.z;
-            direction.shift = newDirection.shift;
+            return rotation;
         }
 
         public List<Point> getBeaconAbsolutePositions() {
@@ -190,6 +168,64 @@ public class Day19 {
             this.x = x;
             this.y = y;
             this.z = z;
+        }
+
+//        public void mutate(Direction oldDir, Direction newDir) {
+//            int px = x * oldDir.x;
+//            int py = y * oldDir.y;
+//            int pz = z * oldDir.z;
+//
+//            int shiftDiff = (6 + newDir.shift - oldDir.shift) % 6;
+//
+//            switch (shiftDiff) {
+//                case 1:
+//                    x = pz * newDir.x;
+//                    y = px * newDir.y;
+//                    z = py * newDir.z;
+//                    break;
+//                case 2:
+//                    x = pz * newDir.x;
+//                    y = py * newDir.y;
+//                    z = px * newDir.z;
+//                    break;
+//                case 3:
+//                    x = px * newDir.x;
+//                    y = pz * newDir.y;
+//                    z = py * newDir.z;
+//                    break;
+//                case 4:
+//                    x = py * newDir.x;
+//                    y = px * newDir.y;
+//                    z = pz * newDir.z;
+//                    break;
+//                case 5:
+//                    x = py * newDir.x;
+//                    y = pz * newDir.y;
+//                    z = px * newDir.z;
+//                    break;
+//                default:
+//                    x = px * newDir.x;
+//                    y = py * newDir.y;
+//                    z = pz * newDir.z;
+//            }
+//        }
+
+        public Point changedWithDirection(Direction dir) {
+            switch (dir.shift) {
+                case 1:
+                    return new Point(x * dir.x, z * dir.z, y * dir.y);
+                case 2:
+                    return new Point(y * dir.y, x * dir.x, z * dir.z);
+                case 3:
+                    return new Point(y * dir.y, z * dir.z, x * dir.x);
+                case 4:
+                    return new Point(z * dir.z, x * dir.x, y * dir.y);
+                case 5:
+                    return new Point(z * dir.z, y * dir.y, x * dir.x);
+                default:
+                    return new Point(x * dir.x, y * dir.y, z * dir.z);
+
+            }
         }
 
         @Override
