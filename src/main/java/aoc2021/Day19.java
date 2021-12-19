@@ -65,7 +65,7 @@ public class Day19 {
                         sourceScanner.position.z + sourceBeacon.z - targetBeacon.z);
 
                     if (targetPositions.merge(position, 1, Integer::sum) == 12) {
-                        targetScanner.position.set(position);
+                        targetScanner.position = position;
                         targetScanner.direction = new Direction(1, 1, 1, 0);
                         return true;
                     }
@@ -190,12 +190,6 @@ public class Day19 {
             this.x = x;
             this.y = y;
             this.z = z;
-        }
-
-        public void set(Point point) {
-            this.x = point.x;
-            this.y = point.y;
-            this.z = point.z;
         }
 
         @Override
