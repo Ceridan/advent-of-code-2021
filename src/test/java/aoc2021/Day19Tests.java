@@ -156,6 +156,6 @@ class Day19Tests {
     void part2_example() {
         int result = Day19.part2(data);
 
-        assertEquals(0, result);
+        assertEquals(3621, result);
     }
 }

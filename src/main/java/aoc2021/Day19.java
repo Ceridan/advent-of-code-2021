@@ -17,10 +17,7 @@ public class Day19 {
 
     static int part1(List<String> data) {
         HashMap<Integer, Scanner> scanners = buildScanners(data);
-        Set<Integer> visited = new HashSet<>(scanners.size());
-        List<Direction> directions = getDirections();
-
-        dfs(scanners, visited, 0, directions);
+        locateScanners(scanners);
 
         Set<Point> uniqueBeacons = new HashSet<>();
         for (int i = 0; i < scanners.size(); i++) {
@@ -31,7 +28,31 @@ public class Day19 {
         return uniqueBeacons.size();
     }
 
-    static void dfs(HashMap<Integer, Scanner> scanners, Set<Integer> visited, int scannerId, List<Direction> directions) {
+    static int part2(List<String> data) {
+        HashMap<Integer, Scanner> scanners = buildScanners(data);
+        locateScanners(scanners);
+        int maxDistance = 0;
+
+        for (int i = 0; i < scanners.size() - 1; i++) {
+            for (int j = i + 1; j < scanners.size(); j++) {
+                Point p1 = scanners.get(i).position;
+                Point p2 = scanners.get(j).position;
+                int dist = Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y) + Math.abs(p1.z - p2.z);
+                maxDistance = Math.max(maxDistance, dist);
+            }
+        }
+
+        return maxDistance;
+    }
+
+    private static void locateScanners(HashMap<Integer, Scanner> scanners) {
+        Set<Integer> visited = new HashSet<>(scanners.size());
+        List<Direction> directions = getDirections();
+
+        dfs(scanners, visited, 0, directions);
+    }
+
+    private static void dfs(HashMap<Integer, Scanner> scanners, Set<Integer> visited, int scannerId, List<Direction> directions) {
         if (visited.contains(scannerId)) {
             return;
         }
@@ -50,7 +71,7 @@ public class Day19 {
         }
     }
 
-    static boolean searchOverlap(Scanner sourceScanner, Scanner targetScanner, List<Direction> directions) {
+    private static boolean searchOverlap(Scanner sourceScanner, Scanner targetScanner, List<Direction> directions) {
         HashMap<Point, Integer> targetPositions;
 
         for (Direction direction : directions) {
@@ -66,7 +87,6 @@ public class Day19 {
 
                     if (targetPositions.merge(position, 1, Integer::sum) == 12) {
                         targetScanner.position = position;
-                        targetScanner.direction = new Direction(1, 1, 1, 0);
                         targetScanner.beacons = rotation;
                         return true;
                     }
@@ -75,10 +95,6 @@ public class Day19 {
         }
 
         return false;
-    }
-
-    static int part2(List<String> data) {
-        return 0;
     }
 
     private static List<Direction> getDirections() {
@@ -110,7 +126,7 @@ public class Day19 {
 
             if (m.matches()) {
                 int id = Integer.parseInt(m.group(1));
-                scanner = new Scanner(id);
+                scanner = new Scanner();
                 scanners.put(id, scanner);
                 continue;
             }
@@ -125,19 +141,13 @@ public class Day19 {
     }
 
     private static class Scanner {
-        private final int id;
         private List<Point> beacons = new ArrayList<>();
         private Point position = new Point(0, 0, 0);
-        private Direction direction = new Direction(1, 1, 1, 0);
-
-        public Scanner(int id) {
-            this.id = id;
-        }
 
         public List<Point> rotate(Direction newDirection) {
             List<Point> rotation = new ArrayList<>(beacons.size());
             for (Point beacon : beacons) {
-                rotation.add(beacon.changedWithDirection(newDirection));
+                rotation.add(beacon.changeWithDirection(newDirection));
             }
             return rotation;
         }
@@ -151,7 +161,7 @@ public class Day19 {
     }
 
     private static class Direction extends Point {
-        private int shift;
+        private final int shift;
 
         public Direction(int x, int y, int z, int shift) {
             super(x, y, z);
@@ -160,9 +170,9 @@ public class Day19 {
     }
 
     private static class Point {
-        protected int x;
-        protected int y;
-        protected int z;
+        protected final int x;
+        protected final int y;
+        protected final int z;
 
         public Point(int x, int y, int z) {
             this.x = x;
@@ -170,47 +180,7 @@ public class Day19 {
             this.z = z;
         }
 
-//        public void mutate(Direction oldDir, Direction newDir) {
-//            int px = x * oldDir.x;
-//            int py = y * oldDir.y;
-//            int pz = z * oldDir.z;
-//
-//            int shiftDiff = (6 + newDir.shift - oldDir.shift) % 6;
-//
-//            switch (shiftDiff) {
-//                case 1:
-//                    x = pz * newDir.x;
-//                    y = px * newDir.y;
-//                    z = py * newDir.z;
-//                    break;
-//                case 2:
-//                    x = pz * newDir.x;
-//                    y = py * newDir.y;
-//                    z = px * newDir.z;
-//                    break;
-//                case 3:
-//                    x = px * newDir.x;
-//                    y = pz * newDir.y;
-//                    z = py * newDir.z;
-//                    break;
-//                case 4:
-//                    x = py * newDir.x;
-//                    y = px * newDir.y;
-//                    z = pz * newDir.z;
-//                    break;
-//                case 5:
-//                    x = py * newDir.x;
-//                    y = pz * newDir.y;
-//                    z = px * newDir.z;
-//                    break;
-//                default:
-//                    x = px * newDir.x;
-//                    y = py * newDir.y;
-//                    z = pz * newDir.z;
-//            }
-//        }
-
-        public Point changedWithDirection(Direction dir) {
+        public Point changeWithDirection(Direction dir) {
             switch (dir.shift) {
                 case 1:
                     return new Point(x * dir.x, z * dir.z, y * dir.y);
@@ -224,7 +194,6 @@ public class Day19 {
                     return new Point(z * dir.z, y * dir.y, x * dir.x);
                 default:
                     return new Point(x * dir.x, y * dir.y, z * dir.z);
-
             }
         }
 
