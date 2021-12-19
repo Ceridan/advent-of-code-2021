@@ -21,7 +21,7 @@ public class Day17 {
         int bestY = Integer.MIN_VALUE;
 
         for (int vx = start.x; vx <= range.max.x; vx++){
-            for (int vy = range.max.y; vy <= Math.abs(start.x - range.max.y); vy++) {
+            for (int vy = range.max.y; vy <= 2 * Math.abs(start.y - range.max.y); vy++) {
                 Point velocity = new Point(vx, vy);
                 Point current = new Point(start.x, start.y);
                 int maxY = Integer.MIN_VALUE;
@@ -51,7 +51,7 @@ public class Day17 {
         int velocityCount = 0;
 
         for (int vx = start.x; vx <= range.max.x; vx++){
-            for (int vy = range.max.y; vy <= Math.abs(start.x - range.max.y); vy++) {
+            for (int vy = range.max.y; vy <= 2 * Math.abs(start.y - range.max.y); vy++) {
                 Point velocity = new Point(vx, vy);
                 Point current = new Point(start.x, start.y);
                 do {
