@@ -27,14 +27,15 @@ public class Day20 {
         int[] algorithm = buildAlgorithm(data);
         Map<Point, Integer> inputImage = buildInputImage(data);
         int defaultValue = 0;
+        int minX = 0, maxX = data.get(2).length();
+        int minY = 0, maxY = data.size() - 2;
 
         for (int step = 0; step < steps; step++) {
             Map<Point, Integer> outputImage = new HashMap<>();
-            Point min = getMin(inputImage);
-            Point max = getMax(inputImage);
+            minX--; maxX++; minY--; maxY++;
 
-            for (int y = min.y - 1; y <= max.y + 1; y++) {
-                for (int x = min.x - 1; x <= max.x + 1; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int x = minX; x <= maxX; x++) {
                     Point coords = new Point(x, y);
                     outputImage.put(coords, calculatePixel(inputImage, algorithm, defaultValue, coords));
                 }
@@ -45,24 +46,6 @@ public class Day20 {
         }
 
         return inputImage.values().stream().mapToInt(Integer::intValue).sum();
-    }
-
-    private static void printImage(Map<Point, Integer> image, int defaultValue, int padding) {
-        Point min = getMin(image);
-        Point max = getMax(image);
-
-        System.out.println();
-
-        for (int y = min.y - 1 - padding; y <= max.y + 1 + padding; y++) {
-            for (int x = min.x - 1 - padding; x <= max.x + 1 + padding; x++) {
-                Point coords = new Point(x, y);
-                int pixelValue = image.getOrDefault(coords, defaultValue);
-                System.out.print(pixelValue == 0 ? '.' : '#');
-            }
-            System.out.println();
-        }
-
-        System.out.println();
     }
 
     private static int calculatePixel(Map<Point, Integer> image, int[] algorithm, int defaultValue, Point coords) {
@@ -77,30 +60,6 @@ public class Day20 {
         }
 
         return algorithm[index];
-    }
-
-    private static Point getMin(Map<Point, Integer>  image) {
-        int x = Integer.MAX_VALUE;
-        int y = Integer.MAX_VALUE;
-
-        for (Point p : image.keySet()) {
-            x = Math.min(x, p.x);
-            y = Math.min(y, p.y);
-        }
-
-        return new Point(x, y);
-    }
-
-    private static Point getMax(Map<Point, Integer>  image) {
-        int x = Integer.MIN_VALUE;
-        int y = Integer.MIN_VALUE;
-
-        for (Point p : image.keySet()) {
-            x = Math.max(x, p.x);
-            y = Math.max(y, p.y);
-        }
-
-        return new Point(x, y);
     }
 
     private static int[] buildAlgorithm(List<String> data) {
