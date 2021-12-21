@@ -15,24 +15,71 @@ public class Day21 {
     }
 
     static long part1(List<String> data) {
+        Player[] players = initPlayers(data);
         Dice dice = new DeterministicDice();
-        Game game = buildGame(data, dice, 1000);
+        Game game = new Game(dice, 1000);
+        int playerIndex;
 
-        while (!game.checkEnd()) {
-            Player player = game.nextPlayer();
+        do {
+            playerIndex = game.nextPlayer();
             int value = game.dice.roll() + game.dice.roll() + game.dice.roll();
-            player.move(value);
-        }
+            players[playerIndex] = game.move(players[playerIndex], value);
+        } while (!game.checkEnd(players[playerIndex].score));
 
-        return game.dice.rollsCount * Math.min(game.player1.score, game.player2.score);
+        return game.dice.rollsCount * Math.min(players[0].score, players[1].score);
     }
 
     static long part2(List<String> data) {
-        return 0;
+        Player[] players = initPlayers(data);
+        Dice dice = new DiracDice();
+        Game game = new Game(dice, 21);
+        HashMap<GameState, LongPair> cache = new HashMap<>();
+
+        LongPair pair = playDiracDiceGame(new GameState(0, players[0], players[1]), game, cache);
+        System.out.println(pair.item1 + " " + pair.item2);
+        return pair.item1;
     }
 
-    private static Game buildGame(List<String> data, Dice dice, int endScore) {
-        List<Player> players = new ArrayList<>();
+    private static LongPair playDiracDiceGame(GameState state, Game game, HashMap<GameState, LongPair> cache) {
+        if (cache.containsKey(state)) {
+            return cache.get(state);
+        }
+
+        LongPair result = new LongPair(0, 0);
+
+        Player activePlayer = state.getActivePlayer();
+
+        for (int i = 0; i < 27; i++) {
+            int rollSum = ((DiracDice) game.dice).roll(i);
+            Player movedPlayer = game.move(activePlayer, rollSum);
+
+            if (game.checkEnd(movedPlayer.score)) {
+                if (state.turn % 2 == 0) {
+                    result.item1 += 1;
+                } else {
+                    result.item2 += 1;
+                }
+            } else {
+                GameState newGameState;
+
+                if (state.turn % 2 == 0) {
+                    newGameState = new GameState(state.turn + 1, movedPlayer, state.getPassivePlayer());
+                } else {
+                    newGameState = new GameState(state.turn + 1, state.getPassivePlayer(), movedPlayer);
+                }
+
+                LongPair recursiveResult = playDiracDiceGame(newGameState, game, cache);
+                result.item1 += recursiveResult.item1;
+                result.item2 += recursiveResult.item2;
+            }
+        }
+
+        cache.put(state, result);
+        return result;
+    }
+
+    private static Player[] initPlayers(List<String> data) {
+        Player[] players = new Player[2];
 
         Pattern p = Pattern.compile("Player (\\d) starting position: (\\d+)");
 
@@ -42,52 +89,93 @@ public class Day21 {
             if (m.find()) {
                 int id = Integer.parseInt(m.group(1));
                 int startingPosition = Integer.parseInt(m.group(2));
-                players.add(new Player(id, startingPosition));
+                players[i] = new Player(startingPosition, 0);
             } else {
                 throw new IllegalArgumentException();
             }
         }
 
-        return new Game(dice, players.get(0), players.get(1), endScore);
+        return players;
     }
 
     private static class Game {
-        private final Player player1;
-        private final Player player2;
         private final Dice dice;
         private final int endScore;
-        private int index = -1;
+        private int turn = 0;
 
-        public Game(Dice dice, Player player1, Player player2, int endScore) {
+        public Game(Dice dice, int endScore) {
             this.dice = dice;
-            this.player1 = player1;
-            this.player2 = player2;
             this.endScore = endScore;
         }
 
-        public Player nextPlayer() {
-            index = (index + 1) % 2;
-            return index == 0 ? player1 : player2;
+        public int nextPlayer() {
+            return turn++ % 2;
         }
 
-        public boolean checkEnd() {
-            return player1.score >= endScore || player2.score >= endScore;
+        public boolean checkEnd(int score) {
+            return score >= endScore;
+        }
+
+        public Player move(Player player, int value) {
+            int position = (player.position - 1 + value) % 10 + 1;
+            int score = player.score + position;
+            return new Player(position, score);
         }
     }
 
     private static class Player {
-        private final int id;
-        private int position;
-        private int score = 0;
+        private final int position;
+        private final int score;
 
-        public Player(int id, int startingPosition) {
-            this.id = id;
-            position = startingPosition;
+        public Player(int position, int score) {
+            this.position = position;
+            this.score = score;
         }
 
-        private void move(int value) {
-            position = (position - 1 + value) % 10 + 1;
-            score += position;
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Player player = (Player) o;
+            return position == player.position && score == player.score;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(position, score);
+        }
+    }
+
+    private static class GameState {
+        private final int turn;
+        private final Player player1;
+        private final Player player2;
+
+        public GameState(int turn, Player player1, Player player2) {
+            this.turn = turn;
+            this.player1 = player1;
+            this.player2 = player2;
+        }
+
+        public Player getActivePlayer() {
+            return turn % 2 == 0 ? this.player1 : this.player2;
+        }
+
+        public Player getPassivePlayer() {
+            return turn % 2 == 1 ? this.player1 : this.player2;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            GameState gameState = (GameState) o;
+            return turn == gameState.turn && player1.equals(gameState.player1) && player2.equals(gameState.player2);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(turn, player1, player2);
         }
     }
 
@@ -105,6 +193,45 @@ public class Day21 {
             rollsCount++;
             lastValue = (lastValue % 100) + 1;
             return lastValue;
+        }
+    }
+
+    private static class DiracDice extends Dice {
+        private final int[] diceSum;
+
+        public DiracDice() {
+            diceSum = new int[27];
+            init();
+        }
+
+        public int roll(int index) {
+            return diceSum[index];
+        }
+
+        private void init() {
+            int d = 0;
+            for (int i = 1; i <= 3; i++) {
+                for (int j = 1; j <= 3; j++) {
+                    for (int k = 1; k <= 3; k++) {
+                        diceSum[d++] = i + j + k;
+                    }
+                }
+            }
+        }
+
+        @Override
+        public int roll() {
+            return 0;
+        }
+    }
+
+    private static class LongPair {
+        private long item1;
+        private long item2;
+
+        private LongPair(long item1, long item2) {
+            this.item1 = item1;
+            this.item2 = item2;
         }
     }
 }
