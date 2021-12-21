@@ -1,7 +1,9 @@
 package aoc2021;
 
 import java.io.FileNotFoundException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,61 +18,64 @@ public class Day21 {
 
     static long part1(List<String> data) {
         Player[] players = initPlayers(data);
-        Dice dice = new DeterministicDice();
-        Game game = new Game(dice, 1000);
-        int playerIndex;
+        DeterministicDice dice = new DeterministicDice();
+        GameState state = new GameState(0, players[0], players[1]);
+        Player activePlayer;
 
         do {
-            playerIndex = game.nextPlayer();
-            int value = game.dice.roll() + game.dice.roll() + game.dice.roll();
-            players[playerIndex] = game.move(players[playerIndex], value);
-        } while (!game.checkEnd(players[playerIndex].score));
+            int rollSum = dice.roll() + dice.roll() + dice.roll();
+            activePlayer = move(state.getActivePlayer(), rollSum);
+            state = getStateForNextTurn(state, activePlayer);
+        } while (activePlayer.score < 1000);
 
-        return game.dice.rollsCount * Math.min(players[0].score, players[1].score);
+        return (long) dice.rollsCount * Math.min(state.player1.score, state.player2.score);
     }
 
     static long part2(List<String> data) {
         Player[] players = initPlayers(data);
-        Dice dice = new DiracDice();
-        Game game = new Game(dice, 21);
-        HashMap<GameState, LongPair> cache = new HashMap<>();
+        DiracDice dice = new DiracDice();
+        HashMap<GameState, Long> cache = new HashMap<>();
 
-        LongPair pair = playDiracDiceGame(new GameState(0, players[0], players[1]), game, cache);
-        System.out.println(pair.item1 + " " + pair.item2);
-        return pair.item1;
+        return playDiracDiceGame(dice, new GameState(0, players[0], players[1]), cache, 21);
     }
 
-    private static LongPair playDiracDiceGame(GameState state, Game game, HashMap<GameState, LongPair> cache) {
+    private static Player move(Player player, int value) {
+        int position = (player.position - 1 + value) % 10 + 1;
+        int score = player.score + position;
+        return new Player(position, score);
+    }
+
+    private static GameState getStateForNextTurn(GameState currentState, Player activePlayer) {
+        GameState nextState;
+
+        if (currentState.turn % 2 == 0) {
+            nextState = new GameState(currentState.turn + 1, activePlayer, currentState.getPassivePlayer());
+        } else {
+            nextState = new GameState(currentState.turn + 1, currentState.getPassivePlayer(), activePlayer);
+        }
+
+        return nextState;
+    }
+
+    private static long playDiracDiceGame(DiracDice dice, GameState state, HashMap<GameState, Long> cache, int endScore) {
         if (cache.containsKey(state)) {
             return cache.get(state);
         }
 
-        LongPair result = new LongPair(0, 0);
+        long result = 0;
 
-        Player activePlayer = state.getActivePlayer();
+        for (int i = 0; i < DiracDice.dimensions; i++) {
+            int rollSum = dice.tripleRoll(i);
+            Player activePlayer = move(state.getActivePlayer(), rollSum);
 
-        for (int i = 0; i < 27; i++) {
-            int rollSum = ((DiracDice) game.dice).roll(i);
-            Player movedPlayer = game.move(activePlayer, rollSum);
-
-            if (game.checkEnd(movedPlayer.score)) {
+            if (activePlayer.score >= endScore) {
                 if (state.turn % 2 == 0) {
-                    result.item1 += 1;
-                } else {
-                    result.item2 += 1;
+                    result++;
                 }
             } else {
-                GameState newGameState;
+                GameState newGameState = getStateForNextTurn(state, activePlayer);
 
-                if (state.turn % 2 == 0) {
-                    newGameState = new GameState(state.turn + 1, movedPlayer, state.getPassivePlayer());
-                } else {
-                    newGameState = new GameState(state.turn + 1, state.getPassivePlayer(), movedPlayer);
-                }
-
-                LongPair recursiveResult = playDiracDiceGame(newGameState, game, cache);
-                result.item1 += recursiveResult.item1;
-                result.item2 += recursiveResult.item2;
+                result += playDiracDiceGame(dice, newGameState, cache, endScore);
             }
         }
 
@@ -87,7 +92,6 @@ public class Day21 {
             Matcher m = p.matcher(data.get(i));
 
             if (m.find()) {
-                int id = Integer.parseInt(m.group(1));
                 int startingPosition = Integer.parseInt(m.group(2));
                 players[i] = new Player(startingPosition, 0);
             } else {
@@ -96,31 +100,6 @@ public class Day21 {
         }
 
         return players;
-    }
-
-    private static class Game {
-        private final Dice dice;
-        private final int endScore;
-        private int turn = 0;
-
-        public Game(Dice dice, int endScore) {
-            this.dice = dice;
-            this.endScore = endScore;
-        }
-
-        public int nextPlayer() {
-            return turn++ % 2;
-        }
-
-        public boolean checkEnd(int score) {
-            return score >= endScore;
-        }
-
-        public Player move(Player player, int value) {
-            int position = (player.position - 1 + value) % 10 + 1;
-            int score = player.score + position;
-            return new Player(position, score);
-        }
     }
 
     private static class Player {
@@ -179,16 +158,10 @@ public class Day21 {
         }
     }
 
-    private static abstract class Dice {
-        protected long rollsCount = 0;
-
-        public abstract int roll();
-    }
-
-    private static class DeterministicDice extends Dice {
+    private static class DeterministicDice {
+        private int rollsCount = 0;
         private int lastValue = 0;
 
-        @Override
         public int roll() {
             rollsCount++;
             lastValue = (lastValue % 100) + 1;
@@ -196,16 +169,17 @@ public class Day21 {
         }
     }
 
-    private static class DiracDice extends Dice {
+    private static class DiracDice {
+        public static final int dimensions = 27;
         private final int[] diceSum;
 
         public DiracDice() {
-            diceSum = new int[27];
+            diceSum = new int[dimensions];
             init();
         }
 
-        public int roll(int index) {
-            return diceSum[index];
+        public int tripleRoll(int dimensionIndex) {
+            return diceSum[dimensionIndex];
         }
 
         private void init() {
@@ -217,21 +191,6 @@ public class Day21 {
                     }
                 }
             }
-        }
-
-        @Override
-        public int roll() {
-            return 0;
-        }
-    }
-
-    private static class LongPair {
-        private long item1;
-        private long item2;
-
-        private LongPair(long item1, long item2) {
-            this.item1 = item1;
-            this.item2 = item2;
         }
     }
 }
