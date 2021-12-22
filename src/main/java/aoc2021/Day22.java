@@ -118,7 +118,7 @@ public class Day22 {
         }
 
         public List<Cube> getDifference(Cube otherCube) {
-            Cube intersection = getIntersection(this, otherCube);
+            Cube intersection = getIntersection(otherCube);
             if (intersection == null) return List.of(this);
 
             List<Cube> cubes = List.of(
@@ -136,28 +136,15 @@ public class Day22 {
                 .collect(Collectors.toList());
         }
 
-        private static Cube getIntersection(Cube cube1, Cube cube2) {
-            if (cube1.minX > cube2.maxX || cube2.minX > cube1.maxX) return null;
-            if (cube1.minY > cube2.maxY || cube2.minY > cube1.maxY) return null;
-            if (cube1.minZ > cube2.maxZ || cube2.minZ > cube1.maxZ) return null;
+        private Cube getIntersection(Cube otherCube) {
+            if (minX > otherCube.maxX || otherCube.minX > maxX) return null;
+            if (minY > otherCube.maxY || otherCube.minY > maxY) return null;
+            if (minZ > otherCube.maxZ || otherCube.minZ > maxZ) return null;
 
             return new Cube(
-                Math.max(cube1.minX, cube2.minX), Math.min(cube1.maxX, cube2.maxX),
-                Math.max(cube1.minY, cube2.minY), Math.min(cube1.maxY, cube2.maxY),
-                Math.max(cube1.minZ, cube2.minZ), Math.min(cube1.maxZ, cube2.maxZ));
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Cube cube = (Cube) o;
-            return minX == cube.minX && maxX == cube.maxX && minY == cube.minY && maxY == cube.maxY && minZ == cube.minZ && maxZ == cube.maxZ;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(minX, maxX, minY, maxY, minZ, maxZ);
+                Math.max(minX, otherCube.minX), Math.min(maxX, otherCube.maxX),
+                Math.max(minY, otherCube.minY), Math.min(maxY, otherCube.maxY),
+                Math.max(minZ, otherCube.minZ), Math.min(maxZ, otherCube.maxZ));
         }
     }
 }
