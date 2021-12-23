@@ -13,36 +13,36 @@ public class Day23 {
     }
 
     static int part1(List<String> data) {
-        Chamber chamber = buildChamberMap(data);
-        Map<Chamber, Integer> costs = new HashMap<>();
-        return dfs(chamber, costs);
+        ChamberState chamberState = buildChamberMap(data, 2);
+        Map<ChamberState, Integer> costs = new HashMap<>();
+        return dfs(chamberState, costs);
     }
 
     static int part2(List<String> data) {
         return 0;
     }
 
-    private static int dfs(Chamber stateChamber, Map<Chamber, Integer> costs) {
-        if (costs.containsKey(stateChamber)) {
-            return costs.get(stateChamber);
+    private static int dfs(ChamberState previousState, Map<ChamberState, Integer> costs) {
+        if (costs.containsKey(previousState)) {
+            return costs.get(previousState);
         }
 
-//        stateChamber.print();
+//        previousState.print();
 
-        Chamber chamber = new Chamber(stateChamber);
+        ChamberState state = new ChamberState(previousState);
         int hallwayCost = 0;
         boolean isMoved = true;
 
         while (isMoved) {
             isMoved = false;
 
-            for (int pos : chamber.hallway.keySet()) {
-                char type = chamber.hallway.get(pos);
+            for (int pos : state.hallway.keySet()) {
+                char type = state.hallway.get(pos);
                 if (type == '.') {
                     continue;
                 }
 
-                int cost = calculateMoveCost(chamber, type, pos, getHallwayPosition(type));
+                int cost = calculateMoveCost(state, type, pos, getHallwayPosition(type));
                 if (cost == -1) {
                     continue;
                 }
@@ -50,60 +50,43 @@ public class Day23 {
                 isMoved = true;
                 hallwayCost += cost;
 
-                chamber.hallway.put(pos, '.');
-                if (chamber.chambersBottom.get(type) == '.') {
-                    chamber.chambersBottom.put(type, type);
-                } else {
-                    chamber.chambersTop.put(type, type);
-                }
+                state.hallway.put(pos, '.');
+                state.chambers.get(type).push(type);
 
-//                chamber.print();
+//                state.print();
             }
         }
 
-        if (chamber.isOrdered()) {
-            costs.put(stateChamber, hallwayCost);
+        if (state.isCompleted()) {
+            costs.put(previousState, hallwayCost);
             return hallwayCost;
         }
 
         int bestCost = Integer.MAX_VALUE;
 
-        for (char type : stateChamber.chambersTop.keySet()) {
-            char top = chamber.chambersTop.get(type);
-            char bottom = chamber.chambersBottom.get(type);
-
-            if (top == type && bottom == type) {
+        for (char type : previousState.chambers.keySet()) {
+            if (state.isOrdered(type)) {
                 continue;
             }
 
-            if (top == '.' && (bottom == type || bottom == '.')) {
-                continue;
-            }
+            Stack<Character> stack = state.chambers.get(type);
 
-            for (int i : chamber.hallway.keySet()) {
-                if (chamber.hallway.get(i) == '.') {
-                    char charType = top != '.' ? top : bottom;
-                    int cost = calculateMoveCost(chamber, charType, getHallwayPosition(type), i);
+            for (int i : state.hallway.keySet()) {
+                int cost = calculateMoveCost(state, stack.peek(), getHallwayPosition(type), i);
 
-                    if (cost == -1) {
-                        continue;
-                    }
-
-                    Chamber newState = new Chamber(chamber);
-                    newState.hallway.put(i, charType);
-                    if (top != '.') {
-                        newState.chambersTop.put(type, '.');
-                    } else {
-                        newState.chambersBottom.put(type, '.');
-                    }
-
-                    int followingStepsCost = dfs(newState, costs);
-                    if (followingStepsCost == -1) {
-                        continue;
-                    }
-
-                    bestCost = Math.min(bestCost, followingStepsCost + cost + hallwayCost);
+                if (cost == -1) {
+                    continue;
                 }
+
+                ChamberState newState = new ChamberState(state);
+                newState.hallway.put(i, newState.chambers.get(type).pop());
+
+                int followingStepsCost = dfs(newState, costs);
+                if (followingStepsCost == -1) {
+                    continue;
+                }
+
+                bestCost = Math.min(bestCost, followingStepsCost + cost + hallwayCost);
             }
         }
 
@@ -111,42 +94,44 @@ public class Day23 {
             return -1;
         }
 
-        costs.put(stateChamber, bestCost);
+        costs.put(previousState, bestCost);
         return bestCost;
     }
 
-    private static int calculateMoveCost(Chamber chamber, Character type, int start, int end) {
+    private static int calculateMoveCost(ChamberState state, Character type, int start, int end) {
         int current = start;
         int step = Integer.signum(end - start);
         int steps = 0;
 
         while (current != end) {
             current += step;
-            if (chamber.hallway.getOrDefault(current, '.') != '.') {
+            if (state.hallway.getOrDefault(current, '.') != '.') {
                 return -1;
             }
             steps++;
         }
 
         if (start == 2 || start == 4 || start == 6 || start == 8) {
-            if (chamber.chambersTop.get(getChamberPosition(start)) == type) {
-                steps += 1;
-            } else {
-                steps += 2;
-            }
-        } else {
-            char top = chamber.chambersTop.get(getChamberPosition(end));
-            char bottom = chamber.chambersBottom.get(getChamberPosition(end));
+            Stack<Character> stack = state.chambers.get(getChamberPosition(start));
 
-            if (top != '.' || (bottom != '.' && bottom != type)) {
+            if (stack.size() == 0 || stack.peek() != type) {
                 return -1;
             }
 
-            if (bottom == '.') {
-                steps += 2;
-            } else {
-                steps += 1;
+            steps += state.stackSize - stack.size() + 1;
+        } else {
+            Stack<Character> stack = state.chambers.get(getChamberPosition(end));
+            if (stack.size() == state.stackSize) {
+                return -1;
             }
+
+            for (Character ch : stack) {
+                if (ch != type) {
+                    return -1;
+                }
+            }
+
+            steps += state.stackSize - stack.size();
         }
 
         return steps * getCost(type);
@@ -182,7 +167,7 @@ public class Day23 {
         }
     }
 
-    private static Chamber buildChamberMap(List<String> data) {
+    private static ChamberState buildChamberMap(List<String> data, int stackSize) {
         Map<Integer, Character> hallway = new HashMap<>();
         hallway.put(0, '.');
         hallway.put(1, '.');
@@ -192,50 +177,61 @@ public class Day23 {
         hallway.put(9, '.');
         hallway.put(10, '.');
 
-        Map<Character, Character> chambersTop = new HashMap<>();
-        Map<Character, Character> chambersBottom = new HashMap<>();
+        Map<Character, Stack<Character>> chambers = new HashMap<>();
+        chambers.put('A', new Stack<>());
+        chambers.put('B', new Stack<>());
+        chambers.put('C', new Stack<>());
+        chambers.put('D', new Stack<>());
 
-        for (String line : data) {
-            int currentChamber = 'A';
-            for (int x = 0; x < line.length(); x++) {
-                char ch = line.charAt(x);
-                if (ch == 'A' || ch == 'B' || ch == 'C' || ch == 'D') {
-                    if (chambersTop.size() < 4) {
-                        chambersTop.put((char) currentChamber, ch);
-                    } else {
-                        chambersBottom.put((char) currentChamber, ch);
-                    }
-
-                    currentChamber = (currentChamber - 'A' + 1) % 4 + 'A';
-                }
-            }
+        for (int i = data.size() - 2; i >= data.size() - stackSize - 1; i--) {
+            String line = data.get(i).trim().replaceAll("#", "");
+            chambers.get('A').push(line.charAt(0));
+            chambers.get('B').push(line.charAt(1));
+            chambers.get('C').push(line.charAt(2));
+            chambers.get('D').push(line.charAt(3));
         }
 
-        return new Chamber(hallway, chambersTop, chambersBottom);
+        return new ChamberState(hallway, chambers);
     }
 
-    private static class Chamber {
+    private static class ChamberState {
         private final Map<Integer, Character> hallway;
-        private final Map<Character, Character> chambersTop;
-        private final Map<Character, Character> chambersBottom;
+        private final Map<Character, Stack<Character>> chambers;
+        private final int stackSize;
 
-        private Chamber(Map<Integer, Character> hallway, Map<Character, Character> chambersTop, Map<Character, Character> chambersBottom) {
+        private ChamberState(Map<Integer, Character> hallway, Map<Character, Stack<Character>> chambers) {
             this.hallway = hallway;
-            this.chambersTop = chambersTop;
-            this.chambersBottom = chambersBottom;
+            this.chambers = chambers;
+            stackSize = chambers.get('A').size();
         }
 
-        private Chamber(Chamber otherChamber) {
-            this.hallway = new HashMap<>(otherChamber.hallway);
-            this.chambersTop = new HashMap<>(otherChamber.chambersTop);
-            this.chambersBottom = new HashMap<>(otherChamber.chambersBottom);
+        private ChamberState(ChamberState otherChamberState) {
+            hallway = new HashMap<>(otherChamberState.hallway);
+            chambers = new HashMap<>();
+            for (Map.Entry<Character, Stack<Character>> entry : otherChamberState.chambers.entrySet()) {
+                Stack<Character> copy = (Stack) entry.getValue().clone();
+                chambers.put(entry.getKey(), copy);
+            }
+            stackSize = otherChamberState.stackSize;
         }
 
-        public boolean isOrdered() {
-            return chambersTop.get('A') == 'A' && chambersBottom.get('A') == 'A' &&
-                chambersTop.get('B') == 'B' && chambersBottom.get('B') == 'B' &&
-                chambersTop.get('C') == 'C' && chambersBottom.get('C') == 'C' &&
-                chambersTop.get('D') == 'D' && chambersBottom.get('D') == 'D';
+        public boolean isCompleted() {
+            return isOrdered('A') && chambers.get('A').size() == stackSize &&
+                isOrdered('B') && chambers.get('B').size() == stackSize &&
+                isOrdered('C') && chambers.get('C').size() == stackSize &&
+                isOrdered('D') && chambers.get('D').size() == stackSize;
+        }
+
+        public boolean isOrdered(Character type) {
+            Stack<Character> stack = chambers.get(type);
+
+            for (int i = 0; i < stack.size(); i++) {
+                if (type != stack.get(i)) {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public void print() {
@@ -244,29 +240,34 @@ public class Day23 {
 
         @Override
         public String toString() {
-            return String.format(
-                "#############\n"+
-                "#%c%c.%c.%c.%c.%c%c#\n" +
-                "###%c#%c#%c#%c###\n" +
-                "  #%c#%c#%c#%c#\n" +
-                "  #########\n",
-                hallway.get(0), hallway.get(1), hallway.get(3), hallway.get(5), hallway.get(7), hallway.get(9), hallway.get(10),
-                chambersTop.get('A'), chambersTop.get('B'), chambersTop.get('C'), chambersTop.get('D'),
-                chambersBottom.get('A'), chambersBottom.get('B'), chambersBottom.get('C'), chambersBottom.get('D')
-            );
+            StringBuilder sb = new StringBuilder();
+            sb.append("#############\n");
+            sb.append(String.format("#%c%c.%c.%c.%c.%c%c#\n", hallway.get(0), hallway.get(1), hallway.get(3), hallway.get(5), hallway.get(7), hallway.get(9), hallway.get(10)));
+
+            for (int i = stackSize - 1; i >= 0; i--) {
+                char a = chambers.get('A').size() > i ? chambers.get('A').get(i) : '.';
+                char b = chambers.get('B').size() > i ? chambers.get('B').get(i) : '.';
+                char c = chambers.get('C').size() > i ? chambers.get('C').get(i) : '.';
+                char d = chambers.get('D').size() > i ? chambers.get('D').get(i) : '.';
+                sb.append(String.format("###%c#%c#%c#%c###\n", a, b, c, d));
+            }
+
+            sb.append("#############\n");
+            return sb.toString();
         }
+
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            Chamber chamber = (Chamber) o;
-            return Objects.equals(hallway, chamber.hallway) && Objects.equals(chambersTop, chamber.chambersTop) && Objects.equals(chambersBottom, chamber.chambersBottom);
+            ChamberState chamberState = (ChamberState) o;
+            return stackSize == chamberState.stackSize && Objects.equals(hallway, chamberState.hallway) && Objects.equals(chambers, chamberState.chambers);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(hallway, chambersTop, chambersBottom);
+            return Objects.hash(hallway, chambers, stackSize);
         }
     }
 }

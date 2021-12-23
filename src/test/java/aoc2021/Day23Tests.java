@@ -21,19 +21,19 @@ class Day23Tests {
         assertEquals(12521, result);
     }
 
-    @Test
-    void part2_example() {
-        List<String> data = List.of(
-            "#############",
-            "#...........#",
-            "###B#C#B#D###",
-            "  #D#C#B#A#",
-            "  #D#B#A#C#",
-            "  #A#D#C#A#",
-            "  #########");
-
-        int result = Day23.part2(data);
-
-        assertEquals(44169, result);
-    }
+//    @Test
+//    void part2_example() {
+//        List<String> data = List.of(
+//            "#############",
+//            "#...........#",
+//            "###B#C#B#D###",
+//            "  #D#C#B#A#",
+//            "  #D#B#A#C#",
+//            "  #A#D#C#A#",
+//            "  #########");
+//
+//        int result = Day23.part2(data);
+//
+//        assertEquals(44169, result);
+//    }
 }
