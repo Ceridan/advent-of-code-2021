@@ -210,7 +210,8 @@ public class Day23 {
             hallway = new HashMap<>(otherChamberState.hallway);
             chambers = new HashMap<>();
             for (Map.Entry<Character, Stack<Character>> entry : otherChamberState.chambers.entrySet()) {
-                Stack<Character> copy = (Stack) entry.getValue().clone();
+                @SuppressWarnings("unchecked")
+                Stack<Character> copy = (Stack<Character>) entry.getValue().clone();
                 chambers.put(entry.getKey(), copy);
             }
             stackSize = otherChamberState.stackSize;
