@@ -226,8 +226,8 @@ public class Day23 {
         public boolean isOrdered(Character type) {
             Stack<Character> stack = chambers.get(type);
 
-            for (int i = 0; i < stack.size(); i++) {
-                if (type != stack.get(i)) {
+            for (Character character : stack) {
+                if (type != character) {
                     return false;
                 }
             }
