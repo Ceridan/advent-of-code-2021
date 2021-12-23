@@ -19,15 +19,18 @@ public class Day23 {
     }
 
     static int part2(List<String> data) {
-        return 0;
+        List<String> extendedData = new ArrayList<>(data);
+        extendedData.add(extendedData.size() - 2, "  #D#C#B#A#");
+        extendedData.add(extendedData.size() - 2, "  #D#B#A#C#");
+        ChamberState chamberState = buildChamberMap(extendedData, 4);
+        Map<ChamberState, Integer> costs = new HashMap<>();
+        return dfs(chamberState, costs);
     }
 
     private static int dfs(ChamberState previousState, Map<ChamberState, Integer> costs) {
         if (costs.containsKey(previousState)) {
             return costs.get(previousState);
         }
-
-//        previousState.print();
 
         ChamberState state = new ChamberState(previousState);
         int hallwayCost = 0;
@@ -52,8 +55,6 @@ public class Day23 {
 
                 state.hallway.put(pos, '.');
                 state.chambers.get(type).push(type);
-
-//                state.print();
             }
         }
 
