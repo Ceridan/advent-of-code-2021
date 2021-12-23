@@ -32,6 +32,7 @@ public class Day23 {
             return costs.get(previousState);
         }
 
+        // 1. Move from hallway to chambers until we have moves
         ChamberState state = new ChamberState(previousState);
         int hallwayCost = 0;
         boolean isMoved = true;
@@ -63,6 +64,7 @@ public class Day23 {
             return hallwayCost;
         }
 
+        // 2. Try to move from chambers to every possible spot in hallway using recursion
         int bestCost = Integer.MAX_VALUE;
 
         for (char type : previousState.chambers.keySet()) {
